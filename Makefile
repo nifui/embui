@@ -1,18 +1,17 @@
-CC = gcc
-CFLAGS = -Wall
+CC = gcc 
+CFLAGS = -Wall -Wextra -std=c11 -O3
+LIBS = -lglfw -lGL
+
+#Only specifiying the .o so .gitignore detects it. Otherwise its useless.
+TARGET = main.o
+
 SRC = src/main.c 
-OUTPUT = main 
-LIBS = 
 
-
-all: $(TARGET)
-	$(CC) $(CFLAGS) -o $(OUTPUT) $(SRC) $(LIBS) 
-
+all: run 
 run: $(TARGET)
-	./($TARGET)
+	./$(TARGET)
 
-clean: 
-	rm -f $(TARGET)
+$(TARGET): $(SRC)
+	$(CC) $(CFLAGS) -o $(TARGET) $(SRC) $(LIBS)
+.PHONY: all run 
 
-
-.PHONY: all run clean
