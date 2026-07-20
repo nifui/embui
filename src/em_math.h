@@ -116,156 +116,155 @@ typedef EM_FLOAT_TYPE em_float;
 /*
    vec2
 */
-#define EM_DECLARE_VEC2(type, suffix)                                                                \
-    typedef struct {                                                                                 \
-        type x;                                                                                      \
-        type y;                                                                                      \
-    } em_vec2##suffix;                                                                               \
-                                                                                                     \
-    EM_API em_vec2##suffix em_vec2##suffix##_add(em_vec2##suffix a, em_vec2##suffix b);              \
-    EM_API em_vec2##suffix em_vec2##suffix##_sub(em_vec2##suffix a, em_vec2##suffix b);              \
-    EM_API em_vec2##suffix em_vec2##suffix##_scale(em_vec2##suffix v, em_float s);                   \
-    EM_API                 em_vec2##suffix                                                           \
-                           em_vec2##suffix##_lerp(em_vec2##suffix a, em_vec2##suffix b, em_float t); \
-    EM_API type            em_vec2##suffix##_dot(em_vec2##suffix a, em_vec2##suffix b);              \
-    EM_API em_float        em_vec2##suffix##_length(em_vec2##suffix v);
+#define EM_DECLARE_VEC2(type, suffix)                                                              \
+    typedef struct {                                                                               \
+        type x;                                                                                    \
+        type y;                                                                                    \
+    } em_vec2##suffix;                                                                             \
+                                                                                                   \
+    EM_API em_vec2##suffix em_vec2##suffix##_add(em_vec2##suffix a, em_vec2##suffix b);            \
+    EM_API em_vec2##suffix em_vec2##suffix##_sub(em_vec2##suffix a, em_vec2##suffix b);            \
+    EM_API em_vec2##suffix em_vec2##suffix##_scale(em_vec2##suffix v, em_float s);                 \
+    EM_API em_vec2##suffix em_vec2##suffix##_lerp(                                                 \
+        em_vec2##suffix a, em_vec2##suffix b, em_float t);                                         \
+    EM_API type     em_vec2##suffix##_dot(em_vec2##suffix a, em_vec2##suffix b);                   \
+    EM_API em_float em_vec2##suffix##_length(em_vec2##suffix v);
 
-#define EM_IMPLEMENT_VEC2(type, suffix)                                                         \
-    EM_API em_vec2##suffix em_vec2##suffix##_add(em_vec2##suffix a, em_vec2##suffix b) {        \
-        return (em_vec2##suffix){(type)(a.x + b.x), (type)(a.y + b.y)};                         \
-    }                                                                                           \
-                                                                                                \
-    EM_API em_vec2##suffix em_vec2##suffix##_sub(em_vec2##suffix a, em_vec2##suffix b) {        \
-        return (em_vec2##suffix){(type)(a.x - b.x), (type)(a.y - b.y)};                         \
-    }                                                                                           \
-                                                                                                \
-    EM_API em_vec2##suffix em_vec2##suffix##_scale(em_vec2##suffix v, em_float s) {             \
-        return (em_vec2##suffix){(type)EM_FLOAT_MUL(v.x, s), (type)EM_FLOAT_MUL(v.y, s)};       \
-    }                                                                                           \
-                                                                                                \
-    EM_API em_vec2##suffix                                                                      \
-           em_vec2##suffix##_lerp(em_vec2##suffix a, em_vec2##suffix b, em_float t) {           \
-        return (                                                                                \
-            em_vec2##suffix                                                                     \
-        ){(type)EM_FLOAT_ADD(a.x, EM_FLOAT_MUL(EM_FLOAT_SUB(b.x, a.x), t)),                     \
-          (type)EM_FLOAT_ADD(a.y, EM_FLOAT_MUL(EM_FLOAT_SUB(b.y, a.y), t))};                    \
-    }                                                                                           \
-                                                                                                \
-    EM_API type em_vec2##suffix##_dot(em_vec2##suffix a, em_vec2##suffix b) {                   \
-        return (type)(a.x * b.x + a.y * b.y);                                                   \
-    }                                                                                           \
-                                                                                                \
-    EM_API em_float em_vec2##suffix##_length(em_vec2##suffix v) {                               \
-        return EM_SQRT((em_float)EM_FLOAT_ADD(EM_FLOAT_MUL(v.x, v.x), EM_FLOAT_MUL(v.y, v.y))); \
+#define EM_IMPLEMENT_VEC2(type, suffix)                                                            \
+    EM_API em_vec2##suffix em_vec2##suffix##_add(em_vec2##suffix a, em_vec2##suffix b) {           \
+        return (em_vec2##suffix){(type)(a.x + b.x), (type)(a.y + b.y)};                            \
+    }                                                                                              \
+                                                                                                   \
+    EM_API em_vec2##suffix em_vec2##suffix##_sub(em_vec2##suffix a, em_vec2##suffix b) {           \
+        return (em_vec2##suffix){(type)(a.x - b.x), (type)(a.y - b.y)};                            \
+    }                                                                                              \
+                                                                                                   \
+    EM_API em_vec2##suffix em_vec2##suffix##_scale(em_vec2##suffix v, em_float s) {                \
+        return (em_vec2##suffix){(type)EM_FLOAT_MUL(v.x, s), (type)EM_FLOAT_MUL(v.y, s)};          \
+    }                                                                                              \
+                                                                                                   \
+    EM_API em_vec2##suffix em_vec2##suffix##_lerp(                                                 \
+        em_vec2##suffix a, em_vec2##suffix b, em_float t) {                                        \
+        return (em_vec2##suffix){                                                                  \
+            (type)EM_FLOAT_ADD(a.x, EM_FLOAT_MUL(EM_FLOAT_SUB(b.x, a.x), t)),                      \
+            (type)EM_FLOAT_ADD(a.y, EM_FLOAT_MUL(EM_FLOAT_SUB(b.y, a.y), t))};                     \
+    }                                                                                              \
+                                                                                                   \
+    EM_API type em_vec2##suffix##_dot(em_vec2##suffix a, em_vec2##suffix b) {                      \
+        return (type)(a.x * b.x + a.y * b.y);                                                      \
+    }                                                                                              \
+                                                                                                   \
+    EM_API em_float em_vec2##suffix##_length(em_vec2##suffix v) {                                  \
+        return EM_SQRT((em_float)EM_FLOAT_ADD(EM_FLOAT_MUL(v.x, v.x), EM_FLOAT_MUL(v.y, v.y)));    \
     }
 
 /*
    rect
 */
-#define EM_DECLARE_RECT(type, suffix)                                            \
-    typedef struct {                                                             \
-        type x;                                                                  \
-        type y;                                                                  \
-        type width;                                                              \
-        type height;                                                             \
-    } em_rect##suffix;                                                           \
-                                                                                 \
-    EM_API int em_rect##suffix##_contains(em_rect##suffix r, em_vec2##suffix p); \
+#define EM_DECLARE_RECT(type, suffix)                                                              \
+    typedef struct {                                                                               \
+        type x;                                                                                    \
+        type y;                                                                                    \
+        type width;                                                                                \
+        type height;                                                                               \
+    } em_rect##suffix;                                                                             \
+                                                                                                   \
+    EM_API int em_rect##suffix##_contains(em_rect##suffix r, em_vec2##suffix p);                   \
     EM_API int em_rect##suffix##_intersects(em_rect##suffix a, em_rect##suffix b);
 
-#define EM_IMPLEMENT_RECT(type, suffix)                                             \
-    EM_API int em_rect##suffix##_contains(em_rect##suffix r, em_vec2##suffix p) {   \
-        return p.x >= r.x && p.x <= (type)(r.x + r.width) && p.y >= r.y &&          \
-               p.y <= (type)(r.y + r.height);                                       \
-    }                                                                               \
-                                                                                    \
-    EM_API int em_rect##suffix##_intersects(em_rect##suffix a, em_rect##suffix b) { \
-        return a.x <= (type)(b.x + b.width) && (type)(a.x + a.width) >= b.x &&      \
-               a.y <= (type)(b.y + b.height) && (type)(a.y + a.height) >= b.y;      \
+#define EM_IMPLEMENT_RECT(type, suffix)                                                            \
+    EM_API int em_rect##suffix##_contains(em_rect##suffix r, em_vec2##suffix p) {                  \
+        return p.x >= r.x && p.x <= (type)(r.x + r.width) && p.y >= r.y &&                         \
+               p.y <= (type)(r.y + r.height);                                                      \
+    }                                                                                              \
+                                                                                                   \
+    EM_API int em_rect##suffix##_intersects(em_rect##suffix a, em_rect##suffix b) {                \
+        return a.x <= (type)(b.x + b.width) && (type)(a.x + a.width) >= b.x &&                     \
+               a.y <= (type)(b.y + b.height) && (type)(a.y + a.height) >= b.y;                     \
     }
 
 /*
    bezier (linear / quadratic / cubic), built from vec2 primitives
 */
-#define EM_DECLARE_BEZIER(type, suffix)                                                       \
-    typedef struct {                                                                          \
-        em_vec2##suffix p0;                                                                   \
-        em_vec2##suffix p1;                                                                   \
-    } em_bezier_linear##suffix;                                                               \
-    typedef em_bezier_linear##suffix em_line##suffix;                                         \
-                                                                                              \
-    typedef struct {                                                                          \
-        em_vec2##suffix p0;                                                                   \
-        em_vec2##suffix p1;                                                                   \
-        em_vec2##suffix p2;                                                                   \
-    } em_bezier_quad##suffix;                                                                 \
-                                                                                              \
-    typedef struct {                                                                          \
-        em_vec2##suffix p0;                                                                   \
-        em_vec2##suffix p1;                                                                   \
-        em_vec2##suffix p2;                                                                   \
-        em_vec2##suffix p3;                                                                   \
-    } em_bezier_cubic##suffix;                                                                \
-                                                                                              \
-    EM_API em_vec2##suffix                                                                    \
-           em_bezier_linear##suffix##_eval(em_bezier_linear##suffix curve, em_float t);       \
-    EM_API em_vec2##suffix                                                                    \
-           em_bezier_quad##suffix##_eval(em_bezier_quad##suffix curve, em_float t);           \
-    EM_API em_vec2##suffix                                                                    \
-           em_bezier_cubic##suffix##_eval(em_bezier_cubic##suffix curve, em_float t);         \
-    EM_API em_vec2##suffix                                                                    \
-           em_bezier_linear##suffix##_derivative(em_bezier_linear##suffix curve, em_float t); \
-    EM_API em_vec2##suffix                                                                    \
-           em_bezier_quad##suffix##_derivative(em_bezier_quad##suffix curve, em_float t);     \
-    EM_API em_vec2##suffix                                                                    \
-           em_bezier_cubic##suffix##_derivative(em_bezier_cubic##suffix curve, em_float t);
+#define EM_DECLARE_BEZIER(type, suffix)                                                            \
+    typedef struct {                                                                               \
+        em_vec2##suffix p0;                                                                        \
+        em_vec2##suffix p1;                                                                        \
+    } em_bezier_linear##suffix;                                                                    \
+    typedef em_bezier_linear##suffix em_line##suffix;                                              \
+                                                                                                   \
+    typedef struct {                                                                               \
+        em_vec2##suffix p0;                                                                        \
+        em_vec2##suffix p1;                                                                        \
+        em_vec2##suffix p2;                                                                        \
+    } em_bezier_quad##suffix;                                                                      \
+                                                                                                   \
+    typedef struct {                                                                               \
+        em_vec2##suffix p0;                                                                        \
+        em_vec2##suffix p1;                                                                        \
+        em_vec2##suffix p2;                                                                        \
+        em_vec2##suffix p3;                                                                        \
+    } em_bezier_cubic##suffix;                                                                     \
+                                                                                                   \
+    EM_API em_vec2##suffix em_bezier_linear##suffix##_eval(em_bezier_linear##suffix curve,         \
+                                                           em_float                 t);            \
+    EM_API em_vec2##suffix em_bezier_quad##suffix##_eval(em_bezier_quad##suffix curve,             \
+                                                         em_float               t);                \
+    EM_API em_vec2##suffix em_bezier_cubic##suffix##_eval(em_bezier_cubic##suffix curve,           \
+                                                          em_float                t);              \
+    EM_API em_vec2##suffix em_bezier_linear##suffix##_derivative(em_bezier_linear##suffix curve,   \
+                                                                 em_float                 t);      \
+    EM_API em_vec2##suffix em_bezier_quad##suffix##_derivative(em_bezier_quad##suffix curve,       \
+                                                               em_float               t);          \
+    EM_API em_vec2##suffix em_bezier_cubic##suffix##_derivative(em_bezier_cubic##suffix curve,     \
+                                                                em_float                t);
 
-#define EM_IMPLEMENT_BEZIER(type, suffix)                                                      \
-    EM_API em_vec2##suffix                                                                     \
-           em_bezier_linear##suffix##_eval(em_bezier_linear##suffix curve, em_float t) {       \
-        return em_vec2##suffix##_lerp(curve.p0, curve.p1, t);                                  \
-    }                                                                                          \
-                                                                                               \
-    EM_API em_vec2##suffix                                                                     \
-           em_bezier_linear##suffix##_derivative(em_bezier_linear##suffix curve, em_float t) { \
-        (void)t;                                                                               \
-        return em_vec2##suffix##_sub(curve.p1, curve.p0);                                      \
-    }                                                                                          \
-                                                                                               \
-    EM_API em_vec2##suffix                                                                     \
-           em_bezier_quad##suffix##_eval(em_bezier_quad##suffix curve, em_float t) {           \
-        em_vec2##suffix a = em_vec2##suffix##_lerp(curve.p0, curve.p1, t);                     \
-        em_vec2##suffix b = em_vec2##suffix##_lerp(curve.p1, curve.p2, t);                     \
-        return em_vec2##suffix##_lerp(a, b, t);                                                \
-    }                                                                                          \
-                                                                                               \
-    EM_API em_vec2##suffix                                                                     \
-           em_bezier_quad##suffix##_derivative(em_bezier_quad##suffix curve, em_float t) {     \
-        em_vec2##suffix d0  = em_vec2##suffix##_sub(curve.p1, curve.p0);                       \
-        em_vec2##suffix d1  = em_vec2##suffix##_sub(curve.p2, curve.p1);                       \
-        em_vec2##suffix mid = em_vec2##suffix##_lerp(d0, d1, t);                               \
-        return em_vec2##suffix##_scale(mid, (em_float)2);                                      \
-    }                                                                                          \
-                                                                                               \
-    EM_API em_vec2##suffix                                                                     \
-           em_bezier_cubic##suffix##_eval(em_bezier_cubic##suffix curve, em_float t) {         \
-        em_vec2##suffix a = em_vec2##suffix##_lerp(curve.p0, curve.p1, t);                     \
-        em_vec2##suffix b = em_vec2##suffix##_lerp(curve.p1, curve.p2, t);                     \
-        em_vec2##suffix c = em_vec2##suffix##_lerp(curve.p2, curve.p3, t);                     \
-        em_vec2##suffix d = em_vec2##suffix##_lerp(a, b, t);                                   \
-        em_vec2##suffix e = em_vec2##suffix##_lerp(b, c, t);                                   \
-        return em_vec2##suffix##_lerp(d, e, t);                                                \
-    }                                                                                          \
-                                                                                               \
-    EM_API em_vec2##suffix                                                                     \
-           em_bezier_cubic##suffix##_derivative(em_bezier_cubic##suffix curve, em_float t) {   \
-        em_vec2##suffix d0  = em_vec2##suffix##_sub(curve.p1, curve.p0);                       \
-        em_vec2##suffix d1  = em_vec2##suffix##_sub(curve.p2, curve.p1);                       \
-        em_vec2##suffix d2  = em_vec2##suffix##_sub(curve.p3, curve.p2);                       \
-        em_vec2##suffix a   = em_vec2##suffix##_lerp(d0, d1, t);                               \
-        em_vec2##suffix b   = em_vec2##suffix##_lerp(d1, d2, t);                               \
-        em_vec2##suffix mid = em_vec2##suffix##_lerp(a, b, t);                                 \
-        return em_vec2##suffix##_scale(mid, (em_float)3);                                      \
+#define EM_IMPLEMENT_BEZIER(type, suffix)                                                          \
+    EM_API em_vec2##suffix em_bezier_linear##suffix##_eval(em_bezier_linear##suffix curve,         \
+                                                           em_float                 t) {           \
+        return em_vec2##suffix##_lerp(curve.p0, curve.p1, t);                                      \
+    }                                                                                              \
+                                                                                                   \
+    EM_API em_vec2##suffix em_bezier_linear##suffix##_derivative(em_bezier_linear##suffix curve,   \
+                                                                 em_float                 t) {     \
+        (void)t;                                                                                   \
+        return em_vec2##suffix##_sub(curve.p1, curve.p0);                                          \
+    }                                                                                              \
+                                                                                                   \
+    EM_API em_vec2##suffix em_bezier_quad##suffix##_eval(em_bezier_quad##suffix curve,             \
+                                                         em_float               t) {               \
+        em_vec2##suffix a = em_vec2##suffix##_lerp(curve.p0, curve.p1, t);                         \
+        em_vec2##suffix b = em_vec2##suffix##_lerp(curve.p1, curve.p2, t);                         \
+        return em_vec2##suffix##_lerp(a, b, t);                                                    \
+    }                                                                                              \
+                                                                                                   \
+    EM_API em_vec2##suffix em_bezier_quad##suffix##_derivative(em_bezier_quad##suffix curve,       \
+                                                               em_float               t) {         \
+        em_vec2##suffix d0  = em_vec2##suffix##_sub(curve.p1, curve.p0);                           \
+        em_vec2##suffix d1  = em_vec2##suffix##_sub(curve.p2, curve.p1);                           \
+        em_vec2##suffix mid = em_vec2##suffix##_lerp(d0, d1, t);                                   \
+        return em_vec2##suffix##_scale(mid, (em_float)2);                                          \
+    }                                                                                              \
+                                                                                                   \
+    EM_API em_vec2##suffix em_bezier_cubic##suffix##_eval(em_bezier_cubic##suffix curve,           \
+                                                          em_float                t) {             \
+        em_vec2##suffix a = em_vec2##suffix##_lerp(curve.p0, curve.p1, t);                         \
+        em_vec2##suffix b = em_vec2##suffix##_lerp(curve.p1, curve.p2, t);                         \
+        em_vec2##suffix c = em_vec2##suffix##_lerp(curve.p2, curve.p3, t);                         \
+        em_vec2##suffix d = em_vec2##suffix##_lerp(a, b, t);                                       \
+        em_vec2##suffix e = em_vec2##suffix##_lerp(b, c, t);                                       \
+        return em_vec2##suffix##_lerp(d, e, t);                                                    \
+    }                                                                                              \
+                                                                                                   \
+    EM_API em_vec2##suffix em_bezier_cubic##suffix##_derivative(em_bezier_cubic##suffix curve,     \
+                                                                em_float                t) {       \
+        em_vec2##suffix d0  = em_vec2##suffix##_sub(curve.p1, curve.p0);                           \
+        em_vec2##suffix d1  = em_vec2##suffix##_sub(curve.p2, curve.p1);                           \
+        em_vec2##suffix d2  = em_vec2##suffix##_sub(curve.p3, curve.p2);                           \
+        em_vec2##suffix a   = em_vec2##suffix##_lerp(d0, d1, t);                                   \
+        em_vec2##suffix b   = em_vec2##suffix##_lerp(d1, d2, t);                                   \
+        em_vec2##suffix mid = em_vec2##suffix##_lerp(a, b, t);                                     \
+        return em_vec2##suffix##_scale(mid, (em_float)3);                                          \
     }
 
 /*

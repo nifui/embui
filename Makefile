@@ -1,5 +1,5 @@
 CC = gcc 
-CFLAGS = -Wall -Wextra -std=c11 -O3
+CFLAGS = -Wall -Wextra -Wpadded -std=c11 -O3
 LIBS = -lglfw -lGL
 
 #Only specifiying the .o so .gitignore detects it. Otherwise its useless.

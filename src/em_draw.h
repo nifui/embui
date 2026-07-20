@@ -10,7 +10,8 @@ typedef struct test_vec2 {
     int x, y;
 } test_vec2;
 
-void draw_rect(em_rectf rect) {}
+void draw_rect(em_rectf rect) {
+}
 
 void draw_line(em_linei line) {
     int x1              = line.p0.x;
