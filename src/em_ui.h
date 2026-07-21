@@ -44,7 +44,7 @@ typedef struct em_circle {
 } em_circle;
 
 typedef struct em_text {
-    const char** text;
+    const char **text;
 } em_text;
 
 // Basic UI primitives
@@ -95,10 +95,10 @@ typedef struct em_point_style {
 // This could probably be cleaner considering the context field could easilly be confused with the
 // regular em_ctx struct.
 typedef struct em_allocator {
-    void* (*alloc)(size_t size, void* context);
-    void* (*realloc)(void* ptr, size_t size, void* context);
-    void (*dealloc)(void* ptr, void* context);
-    void* context;
+    void *(*alloc)(size_t size, void *context);
+    void *(*realloc)(void *ptr, size_t size, void *context);
+    void (*dealloc)(void *ptr, void *context);
+    void *context;
 } em_allocator;
 
 // If an implementation is not provided it'll use a default allocator suited for the OS that is
@@ -160,11 +160,13 @@ typedef struct {
 // For an embedded systems specify a starting address that can be used for memory operations. Then
 // let the allocator go from there
 //
-int em_allocator_init(em_allocator* allocator,
-                      void* (*alloc)(size_t size, void* context),
-                      void* (*realloc)(size_t size, void* context),
-                      void (*dealloc)(void* ptr, void* context),
-                      void* context);
+int em_allocator_init(
+    em_allocator *allocator,
+    void *(*alloc)(size_t size, void *context),
+    void *(*realloc)(size_t size, void *context),
+    void (*dealloc)(void *ptr, void *context),
+    void *context
+);
 int em_ctx_init();
 
 // By having a next_sibling depth of the tree can be perserved
