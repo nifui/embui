@@ -4,12 +4,12 @@
 // Typical alloc strat should be doubling of memory till the doubling amount meets some threshold.
 #ifndef EM_UI_H
 #define EM_UI_H
-#define VECTOR_TYPE(T)                                                                             \
-    typedef struct {                                                                               \
-        T*  data;                                                                                  \
-        int size;                                                                                  \
-        int capacity;                                                                              \
-    }##T##_vec
+#define VECTOR_TYPE(type) \
+    struct _##type_vec {  \
+        type *data;       \
+        int   size;       \
+        int   capacity;   \
+    }
 #include "em_real.h"
 #include "em_math.h"
 // Additional features :
@@ -37,7 +37,7 @@ typedef struct em_circle {
 } em_circle;
 
 typedef struct em_text {
-    const char** text;
+    const char **text;
 } em_text;
 
 // Basic UI primitives
@@ -88,10 +88,10 @@ typedef struct em_point_style {
 // This could probably be cleaner considering the context field could easilly be confused with the
 // regular em_ctx struct.
 typedef struct em_allocator {
-    void* (*alloc)(size_t size, void* context);
-    void* (*realloc)(void* ptr, size_t size, void* context);
-    void (*dealloc)(void* ptr, void* context);
-    void* context;
+    void *(*alloc)(size_t size, void *context);
+    void *(*realloc)(void *ptr, size_t size, void *context);
+    void (*dealloc)(void *ptr, void *context);
+    void *context;
 } em_allocator;
 
 // Should this be reused?
@@ -150,15 +150,16 @@ typedef struct {
 // For an embedded systems specify a starting address that can be used for memory operations. Then
 // let the allocator go from there
 //
-int em_allocator_init(em_allocator* allocator,
-                      void* (*alloc)(size_t size, void* context),
-                      void* (*realloc)(size_t size, void* context),
-                      void (*dealloc)(void* ptr, void* context),
-                      void* context);
+int em_allocator_init(
+    em_allocator *allocator,
+    void *(*alloc)(size_t size, void *context),
+    void *(*realloc)(size_t size, void *context),
+    void (*dealloc)(void *ptr, void *context),
+    void *context
+);
 int em_ctx_init();
 
-em_cmd* em_emit_cmds(em_ctx* ctx) {
-}
+em_cmd *em_emit_cmds(em_ctx *ctx) {}
 
 // By having a next_sibling depth of the tree can be perserved
 // First child helps with finding the child.
@@ -180,38 +181,34 @@ typedef struct em_node {
 // Considering children are allowed how do we determine how to lay them out if the user doesn't
 // provide styling? Default styling/layout strategy for children?
 //
-
-VECTOR_TYPE(em_rect_style);
-
+#define EM_VECTOR(type, name) \
+    struct {                  \
+        type  *data;          \
+        size_t count;         \
+        size_t capacity;      \
+    } name
 // Go with a SoA approach for better cache locality and less memory consumption?
 // It might not be better at small elements as the indecision caused by determing which array to
 // index might outweight the benefit of a uniform memory layout. It would also allow us to emit
 // a non styled tree for debugging when needed.
 typedef struct em_node_tree {
-    em_rect_style*  rect_styles;
-    size_t          rect_style_count;
-    em_text_style*  text_style;
-    size_t          text_style_count;
-    em_point_style* point_styles;
-    size_t          point_styles_count;
-    em_line_style*  line_styles;
-    size_t          line_styles_count;
-    em_primitive*   primitives;
-    size_t          primitive_count;
-    em_node*        nodes;
-    size_t          node_count;
+    EM_VECTOR(em_rect_style, rect_styles);
+    EM_VECTOR(em_text_style, text_styles);
+    EM_VECTOR(em_point_style, point_styles);
+    EM_VECTOR(em_line_style, line_styles);
+    EM_VECTOR(em_primitive, primitives);
+    EM_VECTOR(em_node, nodes);
 } em_node_tree;
-
 //
 #define DEFAULT_ARRAY_SIZE 32
 
-int em_node_tree_init(em_ctx* ctx, struct em_node_tree* tree) {
-    tree->nodes      = (em_node*)ctx->allocator.alloc(sizeof(em_node) * DEFAULT_ARRAY_SIZE,
-                                                      ctx->allocator.context);
-    tree->node_count = DEFAULT_ARRAY_SIZE;
+int em_node_tree_init(em_ctx *ctx, struct em_node_tree *tree) {
+    tree->nodes.data =
+        (em_node *)
+            ctx->allocator.alloc(sizeof(em_node) * DEFAULT_ARRAY_SIZE, ctx->allocator.context);
+    tree->nodes.count = DEFAULT_ARRAY_SIZE;
     // Maybe default alloc for rect and text as those are most commonly used.
-    tree->nodes[0] = (em_node){.id = 0, .parent_id = 0, .first_child = 0, .next_sibling = 0};
-
+    tree->nodes.data[0] = (em_node){.id = 0, .parent_id = 0, .first_child = 0, .next_sibling = 0};
     // The other fields should be empty as the user might never use them
 }
 
@@ -223,18 +220,17 @@ int em_char_width() {
     return 1;
 }
 
-bool em_verify_node(em_ctx* ctx) {
+bool em_verify_node(em_ctx *ctx) {
     // Verify the node can be actually inserted by checking the ids of the fields to verify it's
     // within the array size
 }
 
-void* em_ensure_capac() {
-}
+void *em_ensure_capac() {}
 
 // This should be an internal function that the user should not be able to access. If the user were
 // able to access this they could put arbitrary nodes with improper ids that lead to improper memory
 // accesses.
-int em_add_node(em_ctx* ctx, em_node_tree* tree) {
+int em_add_node(em_ctx *ctx, em_node_tree *tree) {
 
 };
 
