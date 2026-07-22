@@ -9,11 +9,11 @@
 // Typical alloc strat should be doubling of memory till the doubling amount meets some threshold.
 #ifndef EM_UI_H
 #define EM_UI_H
-#define EM_VECTOR(type, name)                                                                      \
-    struct {                                                                                       \
-        type*  data;                                                                               \
-        size_t size;                                                                               \
-        size_t capacity;                                                                           \
+#define EM_VECTOR(type, name) \
+    struct {                  \
+        type  *data;          \
+        size_t size;          \
+        size_t capacity;      \
     } name
 #include "em_real.h"
 #include "em_math.h"
@@ -221,9 +221,10 @@ typedef struct em_primitive_pool {
 //
 #define DEFAULT_ARRAY_SIZE 32
 
-int em_node_tree_init(em_ctx* ctx, struct em_node_tree* tree) {
-    tree->nodes.data = (em_node*)ctx->allocator.alloc(sizeof(em_node) * DEFAULT_ARRAY_SIZE,
-                                                      ctx->allocator.context);
+int em_node_tree_init(em_ctx *ctx, struct em_node_tree *tree) {
+    tree->nodes.data =
+        (em_node *)
+            ctx->allocator.alloc(sizeof(em_node) * DEFAULT_ARRAY_SIZE, ctx->allocator.context);
     tree->nodes.size = DEFAULT_ARRAY_SIZE;
     // Maybe default alloc for rect and text as those are most commonly used.
 
@@ -232,36 +233,44 @@ int em_node_tree_init(em_ctx* ctx, struct em_node_tree* tree) {
 
 //-1 = Failed to allocate memory.
 //
-int em_tree_add_node(em_ctx* ctx, em_node_tree* tree, em_index parent_index) {
-    em_allocator allocator = ctx->allocator;
+int em_tree_add_node(em_ctx *ctx, em_node_tree *tree, em_index parent_index) {
+    em_allocator *allocator = &ctx->allocator;
     if (tree->nodes.size == tree->nodes.capacity) {
+        size_t new_capacity = tree->nodes.capacity * 2;
 
-        void* res = allocator.realloc(
-            tree->nodes.data, tree->nodes.capacity * sizeof(em_node), allocator.context);
-        if (res == NULL) {
+        void *res =
+            allocator
+                ->realloc(tree->nodes.data, new_capacity * sizeof(em_node), allocator->context);
+
+        if (!res)
             return -1;
-        }
-        tree->nodes.capacity *= 2;
+
+        tree->nodes.data     = (em_node *)res;
+        tree->nodes.capacity = new_capacity;
     }
     em_index free_index;
     if (tree->free_list.size > 0) {
+        tree->free_list.size--;
         free_index = tree->free_list.data[tree->free_list.size];
-        tree->free_list.size -= 1;
     } else {
         free_index = tree->nodes.size;
         tree->nodes.size += 1;
     }
-    em_node parent_node          = tree->nodes.data[parent_index];
-    em_node last_child_node      = tree->nodes.data[parent_node.last_child];
-    last_child_node.next         = free_index;
-    parent_node.last_child       = free_index;
+    em_node *parent_node = &tree->nodes.data[parent_index];
+    // Does not handle an empty child list.
+    if (parent_node->last_child == EM_NODE_NULL) {
+        //
+    }
+    em_node *last_child_node     = &tree->nodes.data[parent_node->last_child];
+    last_child_node->next        = free_index;
     tree->nodes.data[free_index] = (em_node){
         .parent      = parent_index,
-        .prev        = parent_node.last_child,
+        .prev        = parent_node->last_child,
         .next        = EM_NODE_NULL,
         .first_child = EM_NODE_NULL,
         .last_child  = EM_NODE_NULL,
     };
+    parent_node->last_child = free_index;
     return 0;
     // Since we don't know the siblings of this node we have to search for it which in the best case
     // is constant time assuming the parent does not have any children or could be O(n) where n is
@@ -280,44 +289,46 @@ typedef enum em_remove_strat {
 //-1 = Reading uninit memory.
 //-2 = Allocation failed.
 
-int em_tree_remove_node(em_ctx*         ctx,
-                        em_node_tree*   tree,
-                        em_index        node_index,
-                        em_remove_strat strat) {
+int em_tree_remove_node(
+    em_ctx *ctx, em_node_tree *tree, em_index node_index, em_remove_strat strat
+) {
     // Capacity doubling strategy but it could be replaced with a better strategy.
-    if (node_index > tree->nodes.size) {
+    if (node_index >= tree->nodes.size) {
         return -1;
     }
     if (tree->free_list.size == tree->free_list.capacity) {
-        void* res = ctx->allocator.realloc(tree->free_list.data,
-                                           tree->free_list.capacity * sizeof(em_node),
-                                           ctx->allocator.context);
+        size_t new_capacity = tree->nodes.capacity * 2;
+
+        void *res = ctx->allocator.realloc(
+            tree->free_list.data, new_capacity * sizeof(em_node), ctx->allocator.context
+        );
         if (!res) {
             return -2;
         }
+        tree->nodes.data = (em_node *)res;
     }
-    em_node  node         = tree->nodes.data[node_index];
-    em_index parent_index = node.parent;
+    em_node *node         = &tree->nodes.data[node_index];
+    em_index parent_index = node->parent;
     // if this is the last or first child of the parent then we should set it to something else.
-    em_node parent_node = tree->nodes.data[parent_index];
+    em_node *parent_node = &tree->nodes.data[parent_index];
 
     // Handles if it's the only node, first or last node. Missing a case I think.
-    if (parent_node.first_child == node_index && parent_node.last_child == node_index) {
-        parent_node.first_child = EM_NODE_NULL;
-        parent_node.last_child  = EM_NODE_NULL;
-    } else if (parent_node.first_child == node_index) {
+    if (parent_node->first_child == node_index && parent_node->last_child == node_index) {
+        parent_node->first_child = EM_NODE_NULL;
+        parent_node->last_child  = EM_NODE_NULL;
+    } else if (parent_node->first_child == node_index) {
         // Shift the children down to fill the gap and avoid orphaned nodes.
-    } else if (parent_node.last_child == node_index) {
-        parent_node.last_child = EM_NODE_NULL;
+    } else if (parent_node->last_child == node_index) {
+        parent_node->last_child = EM_NODE_NULL;
     }
     // Handles when it's in the middle.
-    if (!node.next && !node.prev) {
-        em_node next_node = tree->nodes.data[node.next];
-        em_node prev_node = tree->nodes.data[node.prev];
-        next_node.prev    = node.next;
-        prev_node.next    = node.prev;
+    if (node->next != EM_NODE_NULL && node->prev != EM_NODE_NULL) {
+        em_node next_node = tree->nodes.data[node->next];
+        em_node prev_node = tree->nodes.data[node->prev];
+        next_node.prev    = node->prev;
+        prev_node.next    = node->next;
     }
-    if (!node.first_child) {
+    if (node->first_child != EM_NODE_NULL) {
         switch (strat) {
         case DISCARD_CHILDREN:
 
@@ -330,7 +341,6 @@ int em_tree_remove_node(em_ctx*         ctx,
 
             break;
         }
-        // Determien how to remove children v
     }
     // Push the node index into the free list for reuse later.
     tree->free_list.data[tree->free_list.size] = node_index;
@@ -338,25 +348,15 @@ int em_tree_remove_node(em_ctx*         ctx,
     return 0;
 }
 
-//-1 No node to find depth.
-//
-int em_node_depth(em_node* node) {
-
-    if (!node) {
-        return -1;
-    }
-    int depth = 0;
-}
-
 // Given the start of the child list this will remove all children associated to the node.
-int em_remove_children(em_ctx* ctx, em_node_tree* tree, em_index start_index) {
+int em_remove_children(em_ctx *ctx, em_node_tree *tree, em_index start_index) {
     // Allocate space to the free_list if needed.
     // Holds the nodes to free. Since this is temporary that we can guarantee will return back, its
     // fine to allocate over.
 
     size_t    stack_capacity = STACK_SIZE;
-    em_index* free_stack =
-        (em_index*)ctx->allocator.alloc(stack_capacity * sizeof(em_index), ctx->allocator.context);
+    em_index *free_stack =
+        (em_index *)ctx->allocator.alloc(stack_capacity * sizeof(em_index), ctx->allocator.context);
     free_stack[0]     = start_index;
     size_t stack_size = 1;
 
@@ -369,6 +369,12 @@ int em_remove_children(em_ctx* ctx, em_node_tree* tree, em_index start_index) {
     }
 }
 
+// Maybe compose the above methods out of these to make the logic easier to follow.
+int unlink_node() {}
+int destroy_subtree() {}
+int free_node() {}
+int reassign_children() {}
+
 int em_char_height() {
     return 1;
 }
@@ -377,17 +383,18 @@ int em_char_width() {
     return 1;
 }
 
-em_cmd* em_emit_cmds(em_ctx* ctx, em_node_tree* tree, em_primitive_pool* pool) {
-    size_t  index     = 0;
-    em_cmd* cmds      = (em_cmd*)ctx->allocator.alloc((tree->nodes.capacity * sizeof(em_cmd)),
-                                                      ctx->allocator.context);
-    size_t  cmds_size = 0;
+em_cmd *em_emit_cmds(em_ctx *ctx, em_node_tree *tree, em_primitive_pool *pool) {
+    size_t  index = 0;
+    em_cmd *cmds =
+        (em_cmd *)
+            ctx->allocator.alloc((tree->nodes.capacity * sizeof(em_cmd)), ctx->allocator.context);
+    size_t cmds_size = 0;
     // This should be improved instead of hardcoding an arbitrary size. To conserve space for this
     // aswell, we can specify ranges.
     // Since each node cotnains the indices for the first and last child we can use that to specify
     // a range for a more compact stack.
-    em_index* index_stack =
-        (em_index*)ctx->allocator.alloc((STACK_SIZE * sizeof(em_index)), ctx->allocator.context);
+    em_index *index_stack =
+        (em_index *)ctx->allocator.alloc((STACK_SIZE * sizeof(em_index)), ctx->allocator.context);
     size_t index_stack_size = 1;
     // Insert the root node as the first index to search.
     index_stack[0] = 0;
