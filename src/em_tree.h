@@ -1,35 +1,50 @@
 #pragma once
 #ifndef EM_TREE_H
 #define EM_TREE_H
-#include <stdint.h>
-#include <cstddef>
-struct em_ctx;
 
-typedef struct em_widget {
-    uint32_t parent;
-    uint32_t child_begin;
-    uint16_t child_count;
-} em_widget;
+#ifdef AUTOCOMPACT
+// If defined, the library will attempt to clean the tree to reduce the free list by either
+// condensing or reordering the nodes. Unsure of the strategy. Could make an empty copy of the whole
+// thing and fill it up which gives excellent cache locality, but that would waste memory. Throw the
+// entries at the front of the list into free list spots to fill them up and shrink size taken up.
+// Swap nodes(worse strategy).
+//
+#endif
 
-typedef struct em_widget_tree {
-    em_widget* widgets;
-    uint32_t   widget_count;
-} em_widget_array;
+#include "em_ui.h"
 
-em_widget* em_widget_children(em_widget_tree* tree, em_widget* widget);
+// 24 bytes
+typedef struct em_node {
+    em_idx parent;
+    em_idx prev;
+    em_idx next;
+    em_idx first_child;
+    em_idx last_child;
+} em_node;
 
-int em_init_tree(em_widget_tree* tree) {
-    tree->widgets      = NULL;
-    tree->widget_count = 0;
-}
+typedef struct em_tree em_tree;
 
-int* em_add_child(em_ctx* ctx, em_widget_tree* tree, em_widget* parent, em_widget* child) {
+/* lifecycle */
+int em_tree_init(em_ctx* ctx, em_tree* tree, size_t size);
+int em_tree_free(em_ctx* ctx, em_tree* tree);
 
-};
-int* em_remove_child(em_widget_tree* tree, em_widget* child) {};
+/* node operations */
+int em_tree_add(em_ctx* ctx, em_tree* tree, em_idx parent);
 
-int* em_prune(em_widget_tree* tree) {
-    return 0;
-}
+int em_tree_remove(em_ctx* ctx, em_tree* tree, em_idx node);
+
+int em_tree_extract(em_ctx* ctx, em_tree* tree, em_idx node, em_node* out);
+
+int em_tree_destroy(em_ctx* ctx, em_tree* tree, em_idx node);
+
+int em_tree_unlink(em_tree* tree, em_idx node);
+
+int em_tree_swap(em_tree* tree, em_idx a, em_idx b);
+
+int em_tree_clean(em_tree* tree);
+
+/* subtree operations */
+int em_add_subtree(em_ctx* ctx, em_idx dst_idx, em_tree* dst_tree, em_tree* src_tree);
+int em_merge_subtree(em_ctx* ctx, em_idx dst_idx, em_tree* dst_tree, em_tree* src_tree);
 
 #endif

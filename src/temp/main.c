@@ -3,7 +3,6 @@
 #include "em_math.h"
 #include <string.h>
 #include <stdio.h>
-
 #define EM_ENABLE_INT
 #define EM_ENABLE_FLOAT
 #define EM_ENABLE_BEZIER_INT

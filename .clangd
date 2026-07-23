@@ -2,5 +2,4 @@
 CompileFlags: 
   Add: [-Wall, -Wextra, -Wpadded]
 Diagnostics: 
-  Suppress: [misc-definitions-in-headers]
   #--target=arm-none-eabi
