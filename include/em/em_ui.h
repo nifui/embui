@@ -1,22 +1,19 @@
+// Fixes :
+// Make realloc optional and use a combination of alloc and free to resize.
+// Allow fixed storage instead of only DMA.
+// Allow selecting different storage implementations for the callback registry
+// Hashmap but probably not a BST.
+// Assumptions:
+// The user actually knows how to properly model their UI instead of nesting 100 nodes or something.
+// 10 or more nested nodes is probably the sweet spot and is deterministic enough.
 
 #pragma once
 
-// Assumes a pool allocator which is probably a bad assumption to make.
 #ifndef EM_UI_H
 #define EM_UI_H
-
 #include "em_math.h"
+#include "em_type.h"
 #include <stddef.h>
-#define EM_VECTOR(type, name)                                                                      \
-    struct {                                                                                       \
-        type*  data;                                                                               \
-        size_t size;                                                                               \
-        size_t capacity;                                                                           \
-    } name
-#define EM_NODE_NULL UINT32_MAX
-#define STACK_SIZE 32
-#define DEFAULT_ARRAY_SIZE 32
-
 // Drawing primitives vs UI primtives.
 // UI primitives might include multiple drawing primitives to properly draw wheras drawing
 // primitives do not.
@@ -24,9 +21,8 @@
 typedef struct em_ui em_ui;
 
 typedef enum em_primitive_type { RECT, POINT, LINE, TEXT, CIRCLE } em_primitive_type;
-
-typedef uint32_t em_idx;
 // 16 bytes
+
 typedef em_recti em_rect;
 // 8 bytes
 typedef em_vec2i em_vec2;
@@ -41,12 +37,12 @@ typedef struct em_circle {
 
 // 8 or 4 bytes
 typedef struct em_text {
-    const char** text;
+    const char **text;
 } em_text;
 
 // Avoiding this cause size is unknown.
 typedef struct em_polygon {
-    em_vec2* points;
+    em_vec2 *points;
 } em_polygon;
 
 typedef struct em_primtive {
@@ -101,17 +97,8 @@ typedef struct em_primitive_pool {
     EM_VECTOR(em_rect_style, rect_styles);
 } em_primitive_pool;
 
-typedef struct em_allocator {
-    void* (*alloc)(size_t size, void* context);
-    void* (*realloc)(void* ptr, size_t size, void* context);
-    void (*dealloc)(void* ptr, void* context);
-    void* context;
-} em_allocator;
-
-typedef struct em_ctx {
-    em_allocator allocator;
-} em_ctx;
-
+// If DMA is not supported/intended, place a function that returns NULL.
+// This will indicate to the function calling for a DMA to return that capacity has been reached.
 typedef enum em_cmd_type {
     DRAW_RECT = 0,
     DRAW_ROUNDED_RECT,
@@ -150,7 +137,7 @@ typedef struct {
 
 typedef struct {
     em_color color;
-    em_vec2* vertices;
+    em_vec2 *vertices;
     size_t   vertex_count;
 
 } em_draw_shape;
@@ -190,19 +177,12 @@ typedef struct em_save_state {
 // neglible especially comapred to dealing with DMA.
 // Final strategy = pre order DFS with a depth field and final processing at the end done by the
 // user by re ordering the depths.
-int em_emit_cmd() {
-}
+int em_emit_cmd() {}
 
-int em_ctx_init(em_ctx* ctx, em_allocator allocator) {
+int em_ctx_init(em_ctx *ctx, em_allocator allocator) {
     ctx->allocator = allocator;
     return 0;
 };
 
-int em_add_element() {
-}
-
-int em_remove_element() {
-}
-
-int em_init_ui(struct em_ui* ui);
+int em_init_ui(struct em_ui *ui);
 #endif

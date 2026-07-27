@@ -12,14 +12,14 @@
 
 static uint32_t framebuffer[WIDTH * HEIGHT];
 
-#define DRAW_PIXEL(x, y, brightness)                                                               \
-    do {                                                                                           \
-        uint32_t* p   = &framebuffer[(y) * WIDTH + (x)];                                           \
-        uint32_t  old = *p & 0xff;                                                                 \
-        uint32_t  b   = old + (brightness);                                                        \
-        if (b > 255)                                                                               \
-            b = 255;                                                                               \
-        *p = (255u << 24) | (b << 16) | (b << 8) | b;                                              \
+#define DRAW_PIXEL(x, y, brightness)                     \
+    do {                                                 \
+        uint32_t *p   = &framebuffer[(y) * WIDTH + (x)]; \
+        uint32_t  old = *p & 0xff;                       \
+        uint32_t  b   = old + (brightness);              \
+        if (b > 255)                                     \
+            b = 255;                                     \
+        *p = (255u << 24) | (b << 16) | (b << 8) | b;    \
     } while (0)
 #define BRIGHTNESS_RES 1
 #define FP_FRAC_BITS 7
@@ -172,7 +172,7 @@ int main(void) {
     if (!glfwInit())
         return 1;
 
-    GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "CPU Rasterizer", NULL, NULL);
+    GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "CPU Rasterizer", NULL, NULL);
 
     if (!window) {
         glfwTerminate();
@@ -199,7 +199,8 @@ int main(void) {
         // printf("Raster: %.3f ms (%.1f FPS)\n", rasterTime * 1000.0, 1.0 / rasterTime);
         glBindTexture(GL_TEXTURE_2D, texture);
         glTexSubImage2D(
-            GL_TEXTURE_2D, 0, 0, 0, WIDTH, HEIGHT, GL_RGBA, GL_UNSIGNED_BYTE, framebuffer);
+            GL_TEXTURE_2D, 0, 0, 0, WIDTH, HEIGHT, GL_RGBA, GL_UNSIGNED_BYTE, framebuffer
+        );
         glClear(GL_COLOR_BUFFER_BIT);
         glEnable(GL_TEXTURE_2D);
         glBegin(GL_QUADS);
