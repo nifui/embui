@@ -7,14 +7,12 @@
  * storage during reallocation and efficient serialization.
  * @defgroup Tree Tree API
  *
- * ## Invariants
- *
- * - Every node has at most one parent.
- * - Siblings form a doubly-linked list.
- * - Children are stored in insertion order.
- * - Node indices remain stable until the node is removed.
- * - Removed indices may be reused through the free list.
- * - Handles are managed independently from tree structure.
+ * @invariant Every node has at most one parent.
+ * @invariant Siblings form a doubly-linked list.
+ * @invariant Children are stored in insertion order.
+ * @invariant Node indices remain stable until the node is removed.
+ * @invariant Removed indices may be reused through the free list.
+ * @invariant Handles are managed independently from tree structure.
  */
 #pragma once
 #ifndef EM_TREE_H
@@ -55,7 +53,7 @@ typedef struct em_tree em_tree;
  * @retval EM_OK Node was created successfully.
  * @retval EM_ERR_* Allocation or validation failed.
  */
-em_result em_tree_add(em_ctx *ctx, em_tree *tree, em_idx parent, em_idx *idx);
+em_result em_tree_add(em_ctx* ctx, em_tree* tree, em_idx parent, em_idx* idx);
 
 /**
  * @brief Removes a node from the tree.
@@ -72,7 +70,7 @@ em_result em_tree_add(em_ctx *ctx, em_tree *tree, em_idx parent, em_idx *idx);
  *
  * @return Operation status.
  */
-em_result em_tree_remove(em_ctx *ctx, em_tree *tree, em_idx target);
+em_result em_tree_remove(em_ctx* ctx, em_tree* tree, em_idx target);
 
 /**
  * @brief Removes a node from the tree and returns its contents.
@@ -86,7 +84,7 @@ em_result em_tree_remove(em_ctx *ctx, em_tree *tree, em_idx target);
  *
  * @return Operation status.
  */
-em_result em_node_extract(em_ctx *ctx, em_tree *tree, em_idx target, em_node *out);
+em_result em_node_extract(em_ctx* ctx, em_tree* tree, em_idx target, em_node* out);
 
 /**
  * @brief Removes and destroys a node.
@@ -100,7 +98,7 @@ em_result em_node_extract(em_ctx *ctx, em_tree *tree, em_idx target, em_node *ou
  *
  * @return Operation status.
  */
-em_result em_node_destroy(em_ctx *ctx, em_tree *tree, em_idx target);
+em_result em_node_destroy(em_ctx* ctx, em_tree* tree, em_idx target);
 
 /**
  * @brief Swaps two nodes in the tree.
@@ -114,7 +112,7 @@ em_result em_node_destroy(em_ctx *ctx, em_tree *tree, em_idx target);
  *
  * @return Operation status.
  */
-em_result em_node_swap(em_tree *tree, em_idx a, em_idx b);
+em_result em_node_swap(em_tree* tree, em_idx a, em_idx b);
 
 /**
  * @brief Appends an entire subtree.
@@ -129,6 +127,6 @@ em_result em_node_swap(em_tree *tree, em_idx a, em_idx b);
  *
  * @return Operation status.
  */
-em_result em_add_subtree(em_ctx *ctx, em_idx dst_idx, em_tree *dst_tree, em_tree *src_tree);
+em_result em_add_subtree(em_ctx* ctx, em_idx dst_idx, em_tree* dst_tree, em_tree* src_tree);
 
 #endif

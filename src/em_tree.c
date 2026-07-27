@@ -8,8 +8,9 @@ typedef struct em_tree {
     EM_VECTOR(em_node, nodes);
     EM_VECTOR(em_idx, free_list);
 } em_tree;
+
 // ONLY FOR USE IN TREE MANAGEMENT.
-static em_idx em_alloc_idx(em_ctx *ctx, em_tree *tree) {
+static em_idx em_alloc_idx(em_ctx* ctx, em_tree* tree) {
     if (tree->free_list.size > 0) {
         tree->free_list.size -= 1;
         return tree->free_list.data[tree->free_list.size];
@@ -20,13 +21,16 @@ static em_idx em_alloc_idx(em_ctx *ctx, em_tree *tree) {
     }
 }
 
-static void em_node_link(em_tree *tree) {}
+static void em_node_link(em_tree* tree) {
+}
 
-static void em_node_unlink(em_tree *tree) {}
+static void em_node_unlink(em_tree* tree) {
+}
 
-static void em_promote() {}
+static void em_promote() {
+}
 
-em_result em_tree_add(em_ctx *ctx, em_tree *tree, em_idx parent, em_idx *handle_idx) {
+em_result em_tree_add(em_ctx* ctx, em_tree* tree, em_idx parent, em_idx* handle_idx) {
     if (!tree) {
         return EM_ERR_MISSING_TREE;
     }
@@ -39,9 +43,21 @@ em_result em_tree_add(em_ctx *ctx, em_tree *tree, em_idx parent, em_idx *handle_
     em_idx new_idx;
     return new_idx;
 }
-em_result em_tree_remove(em_ctx *ctx, em_tree *tree, em_idx target) {}
-em_result em_node_extract(em_ctx *ctx, em_tree *tree, em_idx node, em_node *out) {}
-em_result em_node_destroy(em_ctx *ctx, em_tree *tree, em_idx node) {}
-em_result em_node_swap(em_tree *tree, em_idx a, em_idx b) {}
-em_result em_tree_clean(em_tree *tree) {}
-em_result em_add_subtree(em_ctx *ctx, em_idx dst_idx, em_tree *dst_tree, em_tree *src_tree) {}
+
+em_result em_tree_remove(em_ctx* ctx, em_tree* tree, em_idx target) {
+}
+
+em_result em_node_extract(em_ctx* ctx, em_tree* tree, em_idx node, em_node* out) {
+}
+
+em_result em_node_destroy(em_ctx* ctx, em_tree* tree, em_idx node) {
+}
+
+em_result em_node_swap(em_tree* tree, em_idx a, em_idx b) {
+}
+
+em_result em_tree_clean(em_tree* tree) {
+}
+
+em_result em_add_subtree(em_ctx* ctx, em_idx dst_idx, em_tree* dst_tree, em_tree* src_tree) {
+}

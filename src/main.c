@@ -1,4 +1,7 @@
 #include <em/em.h>
+#include <stdio.h>
+
 int main() {
-    return -1;
+    printf("Test");
+    return 0;
 }

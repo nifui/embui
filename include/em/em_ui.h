@@ -7,6 +7,17 @@
 // The user actually knows how to properly model their UI instead of nesting 100 nodes or something.
 // 10 or more nested nodes is probably the sweet spot and is deterministic enough.
 
+/**
+ * @file em_ui.h
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ * */
+
 #pragma once
 
 #ifndef EM_UI_H
@@ -14,22 +25,15 @@
 #include "em_math.h"
 #include "em_type.h"
 #include <stddef.h>
-// Drawing primitives vs UI primtives.
-// UI primitives might include multiple drawing primitives to properly draw wheras drawing
-// primitives do not.
 
 typedef struct em_ui em_ui;
 
 typedef enum em_primitive_type { RECT, POINT, LINE, TEXT, CIRCLE } em_primitive_type;
-// 16 bytes
 
 typedef em_recti em_rect;
-// 8 bytes
 typedef em_vec2i em_vec2;
-// 16 bytes
 typedef em_linei em_line;
 
-// 12 bytes
 typedef struct em_circle {
     em_vec2 center;
     int     radius;
@@ -37,12 +41,12 @@ typedef struct em_circle {
 
 // 8 or 4 bytes
 typedef struct em_text {
-    const char **text;
+    const char** text;
 } em_text;
 
 // Avoiding this cause size is unknown.
 typedef struct em_polygon {
-    em_vec2 *points;
+    em_vec2* points;
 } em_polygon;
 
 typedef struct em_primtive {
@@ -137,7 +141,7 @@ typedef struct {
 
 typedef struct {
     em_color color;
-    em_vec2 *vertices;
+    em_vec2* vertices;
     size_t   vertex_count;
 
 } em_draw_shape;
@@ -177,12 +181,13 @@ typedef struct em_save_state {
 // neglible especially comapred to dealing with DMA.
 // Final strategy = pre order DFS with a depth field and final processing at the end done by the
 // user by re ordering the depths.
-int em_emit_cmd() {}
+int em_emit_cmd() {
+}
 
-int em_ctx_init(em_ctx *ctx, em_allocator allocator) {
+int em_ctx_init(em_ctx* ctx, em_allocator allocator) {
     ctx->allocator = allocator;
     return 0;
 };
 
-int em_init_ui(struct em_ui *ui);
+int em_init_ui(struct em_ui* ui);
 #endif
