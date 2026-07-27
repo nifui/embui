@@ -61,3 +61,14 @@ em_result em_tree_clean(em_tree* tree) {
 
 em_result em_add_subtree(em_ctx* ctx, em_idx dst_idx, em_tree* dst_tree, em_tree* src_tree) {
 }
+
+em_result em_collect_parents(em_ctx*  ctx,
+                             em_idx   target,
+                             em_node* dst_nodes,
+                             size_t   dst_capacity,
+                             size_t*  found_amount) {
+
+    em_idx current_node = target;
+    while (current_node != EM_NODE_ROOT) {
+    }
+}

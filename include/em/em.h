@@ -1,4 +1,9 @@
 /*
+ * @brief This only handles layout and depth, anything that's related to rendering is strictly
+ * delegated to the user to implement. While a standard set of draw functions are provided a
+ * framebuffer or something of the kind is needed.
+ *
+ *
 @defgroup Configuration Define
 
 These macros may be defined before including <em.h> to customize the library.
@@ -49,7 +54,10 @@ These macros may be defined before including <em.h> to customize the library.
     Example:
         #define MAX_UI_DEPTH 10u
 
-------------------------------------------------------------------------------
+    @defgroup To Do
+
+    @invariant - Replace @returns with @retval as majority return em_result with different error
+                 types.
 */
 #pragma once
 #ifndef EM_H

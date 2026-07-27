@@ -28,7 +28,16 @@
 
 typedef struct em_ui em_ui;
 
-typedef enum em_primitive_type { RECT, POINT, LINE, TEXT, CIRCLE } em_primitive_type;
+// clang-format off
+typedef enum em_primitive_type { 
+    RECT, 
+    TEXT, 
+    LINE, 
+    CIRCLE, 
+    POINT 
+} em_primitive_type;
+
+// clang-format on
 
 typedef em_recti em_rect;
 typedef em_vec2i em_vec2;
@@ -164,30 +173,14 @@ typedef struct em_save_state {
     // Current index the tree is at.
     em_idx tree_index;
     size_t current_depth;
-
 } em_save_state;
 
-// Maybe add an option to allow sending commands in a fixed size to avoid dynamic memory
-// allocations. Would require a state struct to record where the processor currently is in the tree.
-// For this we keep only the next index to process based off of the sibling or child.
-// The priority is first processing the child as we wanna go down as deep as possible in a single
-// branch. Then we prioritize prcoessing the siblings. Once the siblings have been processed we can
-// go back up to the parent ndoe and then process it's siblings. The process is repeated again until
-// we have basically finished processing the whole thing. This works on the assumption that we
-// attempt to target the first child first of each parent node. If we want to perserve order for
-// drawing we might aswell throw in a depth counter. This basically leaves the reordering and hiding
-// stuff up to the user to optimize. However this assumes the user is drawing a crap ton of items
-// which probably isn't happening on an embededd system so the performance diff from this is
-// neglible especially comapred to dealing with DMA.
-// Final strategy = pre order DFS with a depth field and final processing at the end done by the
-// user by re ordering the depths.
-int em_emit_cmd() {
-}
+// Allow sending commands in batches within a constrained size buffer.
+// Avoids dynamic memory allocation and can be used for debugging what's going work.
+// Function pointers can also be used instead.
+int em_emit_cmd();
 
-int em_ctx_init(em_ctx* ctx, em_allocator allocator) {
-    ctx->allocator = allocator;
-    return 0;
-};
+int em_ctx_init(em_ctx* ctx, em_allocator allocator);
 
 int em_init_ui(struct em_ui* ui);
 #endif

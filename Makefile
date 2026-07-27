@@ -13,6 +13,9 @@ run: $(TARGET)
 	echo "Done"
 $(TARGET): $(SRC)
 	$(CC) $(CFLAGS) -o $(TARGET) $(SRC) $(LIBS) $(INCLUDE)
+
+
+
 docs: 
 	doxygen 
 	miniserve html/

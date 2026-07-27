@@ -73,6 +73,14 @@ typedef EM_IDX_TYPE em_idx;
 #define DEFAULT_ARRAY_SIZE 32
 
 /**
+ * @brief Max depth at which elements can be nested in the UI.
+ *
+ *
+ *
+ * */
+#define MAX_UI_DEPTH 16u
+
+/**
  * @brief User-provided memory allocator.
  *
  * All allocation performed by the library goes through this interface unless
@@ -223,10 +231,13 @@ typedef enum {
     /** Index or access outside valid bounds. */
     EM_ERR_OUT_OF_BOUNDS,
 
+    /** The capacity of the provided storage was reached. */
+    EM_ERR_CAPACITY,
+
 } em_result;
 
 /**
- * @brief Prints the result.
+ * @brief Prints the error associated with the ::em_result variant.
  *
  *
  *

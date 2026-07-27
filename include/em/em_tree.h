@@ -129,4 +129,27 @@ em_result em_node_swap(em_tree* tree, em_idx a, em_idx b);
  */
 em_result em_add_subtree(em_ctx* ctx, em_idx dst_idx, em_tree* dst_tree, em_tree* src_tree);
 
+/**
+ * @brief Collect parents until root is reached
+ *
+ * Mainly for event propogation where when attempting to find a callback it only traverses through
+ * the parents.
+ *
+ * @param ctx Memory allocation context.
+ * @param target Target index.
+ * @param dst_capacity Specifies the capacity of dst_nodes.
+ * @param[out] found_amount Amount of parents that was found.
+ * @param[out] dst_nodes Storage for parent nodes that are found.
+ *
+ * @retval EM_OK Parents were successfully collected.
+ * @retval EM_ERR_CAPACITY The supplied collection array was not big enough and not all nodes were
+ *         collected.
+ *
+ * */
+em_result em_collect_parents(em_ctx*  ctx,
+                             em_idx   target,
+                             em_node* dst_nodes,
+                             size_t   dst_capacity,
+                             size_t*  found_amount);
+
 #endif

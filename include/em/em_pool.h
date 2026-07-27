@@ -38,10 +38,17 @@ typedef struct em_handle {
  *
  * */
 
+// steps to resolve: switch on type and index.
+// more packed memory
+// no cache locality
+// index and switch on type and then interpret field.
+// very cache friendly as contiguous
+// wasted memory
+//
 typedef struct em_handle_pool {
     size_t     size;
     size_t     capacity;
-    em_handle* handles;
+    em_handle* data;
 } em_handle_pool;
 
 /**
@@ -70,18 +77,26 @@ typedef EM_VECTOR(em_line, em_line_pool);
  *
  * */
 typedef struct em_resource_pool {
-    em_handle_pool handle_pool;
-    em_style_pool  style_pool;
-    em_rect_pool   rect_pool;
-    em_circle_pool circle_pool;
-    em_line_pool   line_pool;
+    em_handle_pool handles;
+    em_style_pool  styles;
+    em_rect_pool   rects;
+    em_circle_pool circles;
+    em_line_pool   lines;
 } em_resource_pool;
 
-int em_pool_init(em_ctx* ctx, em_resource_pool* pool);
+em_result em_pool_init(em_ctx* ctx, em_resource_pool* pool);
 
 em_result em_add_handle(em_ctx*           ctx,
                         em_resource_pool* resource_pool,
                         em_primitive_type type,
                         em_handle*        handle);
+
+em_result em_remove_element(em_ctx* ctx, em_resource_pool* resources, em_handle* handle);
+
+em_result em_modify_style(em_resource_pool* resources, em_idx style_idx, em_style style);
+
+em_result em_add_style(em_ctx* ctx, em_resource_pool* resources, em_style* style, em_idx* dst_idx);
+
+em_result em_change_style(em_ctx* ctx, em_resource_pool* resources, em_idx target);
 
 #endif

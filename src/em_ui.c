@@ -38,23 +38,5 @@ em_result em_remove_prim(em_ctx* ctx, em_ui* ui, em_handle* handle) {
 }
 
 // Returns back the corresponding index at which the style was placed.
-
-em_result em_add_style(em_ctx* ctx, em_ui* ui, em_style style, em_idx* style_idx) {
-}
-
-// Changes the style to the one at the given index.
-em_result em_change_style(em_ctx* ctx, em_ui* ui, em_handle* handle, em_idx style_idx) {
-}
-
-em_result em_remove_element(em_ctx* ctx, em_ui* ui, em_idx target) {
-}
-
-// Replace the old style with a new style.
-em_result em_modify_style(em_ui* ui, em_idx idx, em_style* new) {
-}
-
-em_result em_register_stateful(em_ui* ui, void* state, em_callback handler, em_tree* widget) {
-}
-
 // Whe emitting commands, it figures out how to layout the elements based on it's siblings and
 // its parents. Children's tend not to inherent parents unless explicitly specified.

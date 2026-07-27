@@ -59,9 +59,11 @@
 #pragma once
 #ifndef EM_EVENTS_H
 #define EM_EVENTS_H
+#include <stddef.h>
+// Defines the type to use to define the size of the registry.
 
-#define MAX_UI_DEPTH 16u
 #include "em_ui.h"
+#include "em_pool.h"
 
 /**
  * @brief Types of input events.
@@ -137,6 +139,8 @@ typedef struct em_keyboard_event {
  * @brief Generic UI event.
  *
  * The active member of the union is determined by ::type.
+ *
+ * @invariant Event generation is not handled by the library and the user must create it.
  */
 typedef struct em_event {
     /** Event category. */
@@ -198,12 +202,15 @@ em_result em_deregister_callback(em_callback_registry* registry, em_idx handle_i
  * @param ctx Library context.
  * @param registry Callback registry.
  * @param value Callback registration information.
+ * @param[out] dst_idx Index of where the callback was registered.
  *
  * @retval EM_OK Registration succeeded.
  * @retval EM_ERR_OUT_OF_MEMORY Registry growth failed.
  */
-em_result
-em_register_callback(em_ctx* ctx, em_callback_registry* registry, em_registry_value* value);
+em_result em_register_callback(em_ctx*               ctx,
+                               em_callback_registry* registry,
+                               em_registry_value*    value,
+                               em_idx*               dst_idx);
 
 /**
  * @brief Dispatches an event through the widget hierarchy.
@@ -217,9 +224,13 @@ em_register_callback(em_ctx* ctx, em_callback_registry* registry, em_registry_va
  * @param initial Initial widget that receives the event.
  *
  * @retval EM_OK Event propagation completed.
+ * @retval EM_ERR_CAPACITY The parent collection array did not have enough capacity.
  */
-em_result
-em_propogate_event(em_ctx* ui, em_callback_registry* registry, em_event* event, em_idx initial);
+em_result em_propogate_event(em_ctx*               ui,
+                             em_handle_pool*       handles,
+                             em_callback_registry* registry,
+                             em_event*             event,
+                             em_idx                initial);
 
 /**
  * @brief Performs hit testing to determine the target widget.
@@ -228,7 +239,17 @@ em_propogate_event(em_ctx* ui, em_callback_registry* registry, em_event* event, 
  * current cursor position.
  *
  * @return Result code indicating success or failure.
+ *
  */
+
+// Unsure of how to actually do this, as a command-based approach isn't too hard (requires keeping
+// handle index or some other metadata) However if the user opts for a func pointer approach where
+// for each call a function pointer is called, its a lot harder as the data does not exist to check.
+// The layout also would have to be recalculated and requires persistent storage which would make
+// storage annoying. ANother possible solution would be to have another struct dedicated
+// specifically for UI layout. It encodes the bounding box of the outputted elements in the tree
+// which can be used for hit testing.
+
 em_result em_find_target();
 
 #endif
