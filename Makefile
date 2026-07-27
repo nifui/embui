@@ -13,5 +13,8 @@ run: $(TARGET)
 	echo "Done"
 $(TARGET): $(SRC)
 	$(CC) $(CFLAGS) -o $(TARGET) $(SRC) $(LIBS) $(INCLUDE)
-.PHONY: all run 
+docs: 
+	doxygen 
+	miniserve html/
+.PHONY: all run docs
 
