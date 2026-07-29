@@ -12,6 +12,8 @@
  * - Simple vector helpers
  * - Error codes
  * - Dynamic memory reservation helper
+ *   @invariant em_ctx can just be null and not contain anything. The fact that it's passed around
+ * everywhere is just to allow allocation where needed.
  */
 
 #pragma once
@@ -61,6 +63,11 @@ typedef EM_IDX_TYPE em_idx;
  * @brief Index of the root node.
  */
 #define EM_NODE_ROOT 0
+
+/**
+ * @brief Index at which the default style for elements reside.
+ */
+#define DEFAULT_STYLE_IDX 0
 
 /**
  * @brief Default stack size used by internal algorithms.
@@ -140,6 +147,28 @@ typedef struct em_ctx {
 } em_ctx;
 
 /**
+ * @brief Checks if a value is an error value.
+ *
+ * @param res Variable at which the value is stored.
+ */
+#define EM_EXPECT(res)                                                                             \
+    do {                                                                                           \
+        if ((res) != EM_OK) {                                                                      \
+            return (res);                                                                          \
+        }                                                                                          \
+    } while (0)
+
+/**
+ * @brief Macro to wave a function as uncomplete.
+ *
+ * @param msg Message to be printed
+ */
+#include <stdio.h>
+#include <stdlib.h>
+
+#define DO_PRAGMA(x) _Pragma(#x)
+#define TODO(msg) DO_PRAGMA(message "TODO: " msg)
+/**
  * @brief Declares a simple dynamically sized vector.
  *
  * Example:
@@ -216,6 +245,9 @@ typedef enum {
     /** Invalid function argument. */
     EM_ERR_INVALID_ARGUMENT,
 
+    /** Invalid index*/
+    EM_ERR_INVALID_INDEX,
+
     /** Memory allocation failed. */
     EM_ERR_OUT_OF_MEMORY,
 
@@ -267,7 +299,7 @@ void em_print_result(em_result result) {
  * @retval EM_OK Success.
  * @retval EM_ERR_OUT_OF_MEMORY Allocation failed.
  */
-static em_result
+em_result
 em_reserve(em_ctx* ctx, void** data, size_t* capacity, size_t min_capacity, size_t elem_size) {
     if (*capacity >= min_capacity) {
         return EM_OK;
@@ -292,9 +324,9 @@ em_reserve(em_ctx* ctx, void** data, size_t* capacity, size_t min_capacity, size
             return EM_ERR_OUT_OF_MEMORY;
         }
 
-        EM_MEMCPY(res, data, (*capacity) * elem_size);
+        EM_MEMCPY(res, *data, (*capacity) * elem_size);
 
-        ctx->allocator.free(data, ctx->allocator.context);
+        ctx->allocator.free(*data, ctx->allocator.context);
 
     } else {
 

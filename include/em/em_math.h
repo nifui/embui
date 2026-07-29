@@ -65,13 +65,17 @@
     wider intermediate, but NOT types needing a post-multiply shift --
     for those you must override EM_FLOAT_MUL).
 */
+
+// Half of this might not even make much sense to do besides out of convinence as gcc optimizes away
+// unused types.
+
 #pragma once
 #ifndef EM_MATH_H
 #define EM_MATH_H
 
 #include <math.h>
 #include <stdint.h>
-
+#include <stddef.h>
 /*
    Linkage
 */
@@ -280,6 +284,17 @@ EM_IMPLEMENT_RECT(int, i)
 #endif
 #define EM_VEC2_i_EXISTS
 
+#ifdef EM_ENABLE_i16
+EM_DECLARE_VEC2(int16_t, i16)
+EM_DECLARE_RECT(int16_t, i16)
+#ifdef EM_MATH_EMIT_IMPL
+EM_IMPLEMENT_RECT(int16_t, i16)
+EM_IMPLEMENT_VEC2(int16_t, i16)
+#endif
+#define EM_VEC2_i16_EXISTS
+#define EM_ENABLE_BEZIER_I16
+#endif
+
 #ifdef EM_ENABLE_FLOAT
 EM_DECLARE_VEC2(em_float, f)
 EM_DECLARE_RECT(em_float, f)
@@ -304,6 +319,7 @@ EM_IMPLEMENT_RECT(unsigned, u)
 #ifndef EM_VEC2_i_EXISTS
 #error "EM_ENABLE_BEZIER_INT requires EM_ENABLE_INT."
 #endif
+
 EM_DECLARE_BEZIER(int, i)
 #if EM_MATH_EMIT_IMPL
 EM_IMPLEMENT_BEZIER(int, i)
@@ -327,6 +343,16 @@ EM_IMPLEMENT_BEZIER(em_float, f)
 EM_DECLARE_BEZIER(unsigned, u)
 #if EM_MATH_EMIT_IMPL
 EM_IMPLEMENT_BEZIER(unsigned, u)
+#endif
+#endif
+
+#ifdef EM_ENABLE_BEZIER_I16
+#ifndef EM_VEC2_i16_EXISTS
+#error "EM_ENABLE_BEZIER_I16 requires EM_ENABLE_I16."
+#endif
+EM_DECLARE_BEZIER(int16_t, i16)
+#if EM_MATH_EMIT_IMPL
+EM_IMPLEMENT_BEZIER(int16_t, i16)
 #endif
 #endif
 

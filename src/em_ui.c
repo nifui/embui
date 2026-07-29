@@ -2,41 +2,65 @@
 #include <em/em_tree.h>
 #include <em/em_pool.h>
 #include <em/em_event.h>
+#include <em/em_internal.h>
+#include <em/em_type.h>
 
 // Offer more raw capabilities and then add an abstraction layer over it so if some people don't
 // wanna deal with the hassle of manually adding to a callback pool it's fine.
 
 // The em_ctx is seperated from the UI, to allow it to be reused across multiple UIs.
 typedef struct em_ui {
-    em_tree*          tree;
-    em_resource_pool* pool;
+    em_tree*      tree;
+    em_resources* resources;
 } em_ui;
+
+// This is the dumbest fix ever for a problem involving headers.
+em_resources* em_get_resources(em_ui* ui) {
+    return ui->resources;
+}
 
 int em_init_ui(struct em_ui* ui) {
 }
 
-em_result
-em_add_prim(em_ctx* ctx, em_ui* ui, em_idx parent_idx, em_primitive_type type, em_handle* handle) {
-    em_idx    handle_idx;
+// Adds a new primitive meaning a new em_prim is put into the prims field.
+// To use a prim in two handles (sharing)
+em_result em_add_prim(em_ctx* ctx, em_ui* ui, em_idx parent_idx, em_primitive_type type) {
+    em_idx    tree_idx;
+    em_idx    res_idx;
     em_result res;
-    res = em_tree_add(ctx, ui->tree, parent_idx, &handle_idx);
-    if (res != EM_OK) {
-        return res;
-    }
-    res = em_add_handle(ctx, ui->pool, type, handle);
-    if (res != EM_OK) {
-        return res;
-    }
+    res = em_tree_add(ctx, ui->tree, parent_idx, &tree_idx);
+    EM_EXPECT(res);
+
+    res = em_add_resource(ctx, ui->resources, type, &res_idx);
+    EM_EXPECT(res);
+
+    res = em_add_handle(ctx,
+                        ui->resources,
+                        (em_handle){.tree_idx     = tree_idx,
+                                    .prim_idx     = ui->resources->prims.size,
+                                    .callback_idx = EM_IDX_NULL,
+                                    .style_idx    = DEFAULT_STYLE_IDX});
+    EM_EXPECT(res);
+
+    ui->tree->nodes.data[tree_idx].handle_idx = ui->resources->handles.size - 1;
     return EM_OK;
 }
 
-em_result em_remove_prim(em_ctx* ctx, em_ui* ui, em_handle* handle) {
-    switch (handle->type) {
-    case RECT:
-        break;
+// Creates handles that takes an already created prim and shares it with n other handles.
+// Could be useful in an array of elements that share the same property.
+// Source of uniquness comes from the tree which does not make any assumptions about duplicate
+// copies.
+//
+//
+em_result em_shared_prims(size_t shared_count, em_handle* dst_handles) {
+
+    for (size_t i = 0; i < shared_count; i++) {
     }
+}
+
+em_result em_remove_prim(em_ctx* ctx, em_ui* ui, em_handle* handle) {
 }
 
 // Returns back the corresponding index at which the style was placed.
 // Whe emitting commands, it figures out how to layout the elements based on it's siblings and
-// its parents. Children's tend not to inherent parents unless explicitly specified.
+// its parents. Cahildren's tend not to inherent parents unless explicitly specified.

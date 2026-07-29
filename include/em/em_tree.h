@@ -39,7 +39,12 @@ typedef struct em_node {
     em_idx last_child;  ///< Last child of this node.
     em_idx handle_idx;  ///< Handle associated with this node.
 } em_node;
-typedef struct em_tree em_tree;
+
+typedef struct em_tree {
+    EM_VECTOR(em_node, nodes);
+    EM_VECTOR(em_idx, free_list);
+} em_tree;
+
 /**
  * @brief Creates a new node.
  *
@@ -151,5 +156,24 @@ em_result em_collect_parents(em_ctx*  ctx,
                              em_node* dst_nodes,
                              size_t   dst_capacity,
                              size_t*  found_amount);
+
+/**
+ * @brief Sets the handle for a given tree node
+ *
+ * @param parameter Description of parameter.
+ *
+ * @return Return value description
+ *  @note There's probably a better solution as this has no checks.
+ */
+em_result em_set_handle(em_tree* tree, em_idx target, em_idx handle_idx) {
+    if (!tree) {
+        return EM_ERR_INVALID_ARGUMENT;
+    }
+    if (tree->nodes.size <= target) {
+        return EM_ERR_INVALID_INDEX;
+    }
+    tree->nodes.data[target].handle_idx = handle_idx;
+    return EM_OK;
+}
 
 #endif

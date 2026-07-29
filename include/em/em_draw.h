@@ -1,5 +1,3 @@
-
-
 #pragma once
 #ifndef EM_DRAW_H
 #define EM_DRAW_H

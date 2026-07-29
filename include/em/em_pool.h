@@ -9,7 +9,9 @@
  * @invariant Every tree node from em_tree.h has a matching handle.
  * @invariant Handles are returned by reference not index.
  * @invariant Users should never attempt to acquire a handle by index.
- *
+ * @invariant When removing a handle, it should always be done in conjugation with it's reference
+ *            element.
+ * @todo This should be fused with em_ui as otherwise circular dependecy annoyances.
  * */
 
 #pragma once
@@ -22,15 +24,16 @@
 
 /**
  * @brief A handle to resources, referenced by @ref em_node
- *
+ * @todo Considering that the prims array and handles array are parallel, maybe fuse the structs?
+ *       Only issue with this is that it loads more stuff that might not be important which could
+ *       hurt cache locality.
  *
  * */
 typedef struct em_handle {
-    em_idx            tree_idx;     //< Index for the tree. Can be shared
-    em_idx            pool_idx;     //< Corresponding pool index specified by @ref type.
-    em_idx            style_idx;    //< Index into the style pool. Can be shared.
-    em_idx            callback_idx; //< Index into the callback registry. Can be shared.
-    em_primitive_type type;         //< Type of the resource. Used to specify the primitive pool.
+    em_idx tree_idx;     //< Index for the tree. Can be shared
+    em_idx prim_idx;     //< Corresponding pool index specified by @ref type.
+    em_idx style_idx;    //< Index into the style pool. Can be shared.
+    em_idx callback_idx; //< Index into the callback registry. Can be shared.
 } em_handle;
 
 /**
@@ -38,18 +41,21 @@ typedef struct em_handle {
  *
  * */
 
-// steps to resolve: switch on type and index.
+// approach 1: switch on type and index.
 // more packed memory
-// no cache locality
-// index and switch on type and then interpret field.
+// worse cache locality
+// approach 2: index and switch on type and then interpret field.
 // very cache friendly as contiguous
 // wasted memory
+// adding = no branch prediction as the type are in the same array.
+// avoids having to leap from an array to another and pointer chasing.
+// less of a hassle to write code that only cares about adding and creating.
 //
-typedef struct em_handle_pool {
+typedef struct em_handles {
     size_t     size;
     size_t     capacity;
     em_handle* data;
-} em_handle_pool;
+} em_handles;
 
 /**
  * @brief Styling for elements.
@@ -63,10 +69,8 @@ typedef struct em_handle_pool {
 typedef struct em_style {
 } em_style;
 
-typedef EM_VECTOR(em_style, em_style_pool);
-typedef EM_VECTOR(em_rect, em_rect_pool);
-typedef EM_VECTOR(em_circle, em_circle_pool);
-typedef EM_VECTOR(em_line, em_line_pool);
+typedef EM_VECTOR(em_prim, em_prims);
+typedef EM_VECTOR(em_style, em_styles);
 
 /**
  * @brief Pool containing other pools.
@@ -76,27 +80,24 @@ typedef EM_VECTOR(em_line, em_line_pool);
  *
  *
  * */
-typedef struct em_resource_pool {
-    em_handle_pool handles;
-    em_style_pool  styles;
-    em_rect_pool   rects;
-    em_circle_pool circles;
-    em_line_pool   lines;
-} em_resource_pool;
+typedef struct em_resources {
+    em_handles handles;
+    em_styles  styles;
+    em_prims   prims;
 
-em_result em_pool_init(em_ctx* ctx, em_resource_pool* pool);
+} em_resources;
 
-em_result em_add_handle(em_ctx*           ctx,
-                        em_resource_pool* resource_pool,
-                        em_primitive_type type,
-                        em_handle*        handle);
+em_result em_pool_init(em_ctx* ctx, em_resources* resources);
+/**
+ *
+ *
+ *
+ *
+ * */
+em_result em_modify_style(em_resources* resources, em_idx style_idx, em_style style);
 
-em_result em_remove_element(em_ctx* ctx, em_resource_pool* resources, em_handle* handle);
+em_result em_add_style(em_ctx* ctx, em_resources* resources, em_style* style, em_idx* dst_idx);
 
-em_result em_modify_style(em_resource_pool* resources, em_idx style_idx, em_style style);
-
-em_result em_add_style(em_ctx* ctx, em_resource_pool* resources, em_style* style, em_idx* dst_idx);
-
-em_result em_change_style(em_ctx* ctx, em_resource_pool* resources, em_idx target);
+em_result em_change_style(em_ctx* ctx, em_resources* resources, em_idx target);
 
 #endif

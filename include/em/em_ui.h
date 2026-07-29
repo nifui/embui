@@ -22,27 +22,41 @@
 
 #ifndef EM_UI_H
 #define EM_UI_H
+
 #include "em_math.h"
 #include "em_type.h"
 #include <stddef.h>
+typedef struct em_ui     em_ui;
+typedef struct em_handle em_handle;
 
-typedef struct em_ui em_ui;
-
-// clang-format off
-typedef enum em_primitive_type { 
-    RECT, 
-    TEXT, 
-    LINE, 
-    CIRCLE, 
-    POINT 
+typedef enum em_primitive_type {
+    RECT,
+    TEXT,
+    LINE,
+    CIRCLE,
 } em_primitive_type;
 
-// clang-format on
+#ifdef USE_INT16
+// 16 bytes
+typedef em_recti16 em_rect;
+// 16 byte
+typedef em_linei16 em_line;
+// 8 bytes
+typedef em_vec2i16 em_vec2;
 
+#else
+// 8 bytes
 typedef em_recti em_rect;
-typedef em_vec2i em_vec2;
+// 8 bytes
 typedef em_linei em_line;
+// 4 bytes
+typedef em_vec2i em_vec2;
 
+#endif
+// 4 butes
+typedef em_vec2 em_point;
+
+// 12  or 6 bytes
 typedef struct em_circle {
     em_vec2 center;
     int     radius;
@@ -53,134 +67,48 @@ typedef struct em_text {
     const char** text;
 } em_text;
 
-// Avoiding this cause size is unknown.
-typedef struct em_polygon {
-    em_vec2* points;
-} em_polygon;
-
-typedef struct em_primtive {
+typedef struct {
     em_primitive_type type;
-    em_idx            style_idx;
 
-    // At most 32 bytes.
     union {
-        em_rect   rect;
-        em_vec2   point;
-        em_line   line;
-        em_circle circle;
-        em_text   text;
+        em_rect   r;
+        em_line   l;
+        em_circle c;
+        em_point  p;
+        em_text   t;
     };
-} em_primitive;
+} em_prim;
 
 typedef struct em_color {
-
     uint8_t r, g, b, a;
 } em_color;
 
-typedef struct em_rect_style {
-    em_vec2 scale;
-    int     is_relative;
-} em_rect_style;
-
-typedef struct em_text_style {
-    em_idx   font_idx;
-    em_color text_color;
-    em_color highlight_color;
-    int      text_size;
-
-} em_text_style;
-
-typedef struct em_line_style {
-
-} em_line_style;
-
-typedef struct em_circle_style {
-
-} em_circle_style;
-
-typedef struct em_point_style {
-
-} em_point_style;
-
-typedef struct em_primitive_pool {
-    EM_VECTOR(em_primitive, primitives);
-    EM_VECTOR(em_text_style, text_styles);
-    EM_VECTOR(em_line_style, line_styles);
-    EM_VECTOR(em_point_style, point_styles);
-    EM_VECTOR(em_rect_style, rect_styles);
-} em_primitive_pool;
-
-// If DMA is not supported/intended, place a function that returns NULL.
-// This will indicate to the function calling for a DMA to return that capacity has been reached.
-typedef enum em_cmd_type {
-    DRAW_RECT = 0,
-    DRAW_ROUNDED_RECT,
-    DRAW_LINE,
-    DRAW_CIRCLE,
-    DRAW_ARC,
-    DRAW_TEXT,
-    DRAW_IMAGE,
-    DRAW_SHAPE,
-} em_cmd_type;
-
-typedef struct {
-    int      rounding;
-    em_rect  rect;
-    em_color color;
-} em_draw_rect;
-
-typedef struct {
-    em_vec2i center;
-    int      radius;
-    em_color color;
-} em_draw_circle;
-
-typedef struct {
-    em_color color;
-    em_vec2i start;
-    em_vec2i end;
-    int      thickness;
-} em_draw_line;
-
-typedef struct {
-    em_color color;
-    int      text_px;
-
-} em_draw_text;
-
-typedef struct {
-    em_color color;
-    em_vec2* vertices;
-    size_t   vertex_count;
-
-} em_draw_shape;
-
-typedef struct em_cmd {
-
-    em_cmd_type type;
-
-    union {
-        em_draw_rect   draw_rect;
-        em_draw_circle draw_circle;
-        em_draw_line   draw_line;
-        em_draw_text   draw_text;
-        em_draw_shape  draw_shape;
-    };
-
-} em_cmd;
-
-typedef struct em_save_state {
-    // Current index the tree is at.
-    em_idx tree_index;
-    size_t current_depth;
-} em_save_state;
-
-// Allow sending commands in batches within a constrained size buffer.
-// Avoids dynamic memory allocation and can be used for debugging what's going work.
-// Function pointers can also be used instead.
-int em_emit_cmd();
+// Creates a new element
 
 int em_ctx_init(em_ctx* ctx, em_allocator allocator);
 
 int em_init_ui(struct em_ui* ui);
+
+/**
+ * @brief Function description
+ *
+ * @param parameter Description of parameter.
+ *
+ * @return Return value description
+ */
+em_result em_add_prim(em_ctx* ctx, em_ui* ui, em_idx parent_idx, em_primitive_type type);
+
+/**
+ * @brief Defines a list of elements that share the same prim.
+ *
+ *
+ * @param shared_count Amount of elements to create that share the same prim.
+ * @param[out] dst_handles Array that holds the amount of handles created.
+ * @param
+ *
+ * @retval EM_OK
+ */
+
+em_result em_shared_prims(size_t shared_count, em_handle* dst_handles);
+
 #endif

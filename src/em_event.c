@@ -3,6 +3,9 @@
 #include <em/em_type.h>
 
 em_registry_value* em_lookup_registry(em_callback_registry* registry, em_idx handle_idx) {
+    if (handle_idx == EM_IDX_NULL) {
+        return NULL;
+    }
     for (size_t i = 0; i < registry->values.size; i++) {
         if (registry->values.data[i].handle_idx == handle_idx) {
             return &registry->values.data[i];
@@ -12,6 +15,9 @@ em_registry_value* em_lookup_registry(em_callback_registry* registry, em_idx han
 }
 
 em_result em_deregister_callback(em_callback_registry* registry, em_idx handle_idx) {
+    if (handle_idx == EM_IDX_NULL) {
+        return EM_ERR_INVALID_HANDLE;
+    }
     for (size_t i = 0; i < registry->values.size; ++i) {
         if (registry->values.data[i].handle_idx == handle_idx) {
             registry->values.data[i] = registry->values.data[--registry->values.size];
@@ -25,6 +31,9 @@ em_result em_register_callback(em_ctx*               ctx,
                                em_callback_registry* registry,
                                em_registry_value*    value,
                                em_idx*               dst_idx) {
+    // It should never allocate over EM_IDX_NULL.
+    // Add a check for if the capacity is going to become EM_IDX_NULL first.
+    // Either way any reallocation should use reserve so error handling is more centralized.
     if (registry->values.size >= registry->values.capacity) {
         size_t new_capacity = registry->values.capacity == 0 ? 2 : registry->values.capacity * 2;
         void*  res          = ctx->allocator.realloc(registry->values.data,
@@ -44,7 +53,7 @@ em_result em_register_callback(em_ctx*               ctx,
 }
 
 em_result em_propogate_event(em_ctx*               ctx,
-                             em_handle_pool*       handles,
+                             em_handles*           handles,
                              em_callback_registry* registry,
                              em_event*             event,
                              em_idx                initial) {
@@ -52,9 +61,7 @@ em_result em_propogate_event(em_ctx*               ctx,
     size_t    found_amount;
     em_result res;
     res = em_collect_parents(ctx, initial, nodes, MAX_UI_DEPTH, &found_amount);
-    if (res != EM_OK) {
-        return res;
-    }
+    EM_EXPECT(res);
     for (size_t i = 0; i < found_amount; i++) {
         em_handle handle = handles->data[nodes[i].handle_idx];
         if (handle.callback_idx != EM_IDX_NULL) {
@@ -64,4 +71,7 @@ em_result em_propogate_event(em_ctx*               ctx,
         }
     }
     return EM_OK;
+}
+
+em_result em_find_target() {
 }

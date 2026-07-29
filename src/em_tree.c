@@ -4,10 +4,6 @@
 #include <string.h>
 #define EM_MEMCPY memcpy
 #endif
-typedef struct em_tree {
-    EM_VECTOR(em_node, nodes);
-    EM_VECTOR(em_idx, free_list);
-} em_tree;
 
 // ONLY FOR USE IN TREE MANAGEMENT.
 static em_idx em_alloc_idx(em_ctx* ctx, em_tree* tree) {
@@ -30,7 +26,7 @@ static void em_node_unlink(em_tree* tree) {
 static void em_promote() {
 }
 
-em_result em_tree_add(em_ctx* ctx, em_tree* tree, em_idx parent, em_idx* handle_idx) {
+em_result em_tree_add(em_ctx* ctx, em_tree* tree, em_idx parent, em_idx* tree_idx) {
     if (!tree) {
         return EM_ERR_MISSING_TREE;
     }
@@ -41,7 +37,7 @@ em_result em_tree_add(em_ctx* ctx, em_tree* tree, em_idx parent, em_idx* handle_
         return EM_ERR_OUT_OF_BOUNDS;
     }
     em_idx new_idx;
-    return new_idx;
+    return EM_OK;
 }
 
 em_result em_tree_remove(em_ctx* ctx, em_tree* tree, em_idx target) {

@@ -54,6 +54,15 @@ These macros may be defined before including <em.h> to customize the library.
     Example:
         #define MAX_UI_DEPTH 10u
 
+    @def USE_INT16
+
+    @brief Controls the size of ints. If defined will use the int16_t type in places where ints are
+           used.
+
+    @invariant If being used must not exceed the int16 limit.
+
+
+
     @defgroup To Do
 
     @invariant - Replace @returns with @retval as majority return em_result with different error
