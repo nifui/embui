@@ -4,7 +4,7 @@
 
 #include "em_math.h"
 
-enum em_anim_curve {
+typedef enum em_anim_curve {
     CONSTANT,
     LINEAR,
     HERMITE,

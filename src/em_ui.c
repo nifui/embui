@@ -20,12 +20,15 @@ int em_init_ui(struct em_ui* ui) {
 
 // Adds a new primitive meaning a new em_prim is put into the prims field.
 // To use a prim in two handles (sharing)
-em_result em_add_prim(em_ctx* ctx, em_ui* ui, em_idx parent_idx, em_primitive_type type) {
+em_result
+em_add_prim(em_ctx* ctx, em_ui* ui, em_idx parent_idx, em_idx style_idx, em_primitive_type type) {
     em_idx    tree_idx;
     em_idx    res_idx;
     em_result res;
+
     res = em_tree_add(ctx, ui->tree, parent_idx, &tree_idx);
     EM_EXPECT(res);
+
     res = em_add_resource(ctx, ui->resources, type, &res_idx);
     EM_EXPECT(res);
 
@@ -34,37 +37,31 @@ em_result em_add_prim(em_ctx* ctx, em_ui* ui, em_idx parent_idx, em_primitive_ty
                         (em_handle){.tree_idx     = tree_idx,
                                     .prim_idx     = ui->resources->prims.size,
                                     .callback_idx = EM_IDX_NULL,
-                                    .style_idx    = DEFAULT_STYLE_IDX});
+                                    .style_idx    = style_idx});
     EM_EXPECT(res);
 
     ui->tree->nodes.data[tree_idx].handle_idx = ui->resources->handles.size - 1;
     return EM_OK;
 }
 
-// Assumed that the shared prim's are siblings.
-em_result em_shared_prims(em_ctx*    ctx,
-                          em_ui*     ui,
-                          em_handle* reference,
-                          size_t     shared_count,
-                          em_handle* dst_handles,
-                          em_idx*    tree_idx) {
+// Creates n clones of the same element sharing the same parent.
+// Useful for array of similar elements. More of a helper function if anything.
+em_result em_shared_prims(em_ctx* ctx, em_ui* ui, em_handle* reference, size_t shared_count) {
 
-    em_result res;
+    em_result         res;
+    em_idx            parent_idx = ui->tree->nodes.data[reference->tree_idx].parent;
+    em_primitive_type prim_type  = ui->resources->prims.data[reference->prim_idx].type;
+
+    if (parent_idx == EM_NODE_NULL) {
+        return EM_ERR_INVALID_INDEX;
+    }
 
     for (size_t i = 0; i < shared_count; i++) {
-        // What should be copied?
-        // The tree_idx should always be unique .
-        // Styling is shared because its required but callbacks aren't so they aren't shared.
-        em_handle handle = {.prim_idx     = reference->prim_idx,
-                            .style_idx    = reference->style_idx,
-                            .tree_idx     = tree_idx[i],
-                            .callback_idx = EM_IDX_NULL};
-        // The handles are guaranteed contiguous so just return the start_idx and the user can
-        // calculate via shared_count + start_idx.
-        res = em_add_handle(ctx, ui->resources, handle);
-
+        res = em_add_prim(ctx, ui, parent_idx, reference->style_idx, prim_type);
         EM_EXPECT(res);
     }
+
+    return EM_OK;
 }
 
 em_result em_remove_prim(em_ctx* ctx, em_ui* ui, em_handle* handle) {

@@ -53,6 +53,7 @@ em_result em_register_callback(em_ctx*               ctx,
 }
 
 em_result em_propogate_event(em_ctx*               ctx,
+                             em_tree*              tree,
                              em_handles*           handles,
                              em_callback_registry* registry,
                              em_event*             event,
@@ -60,7 +61,7 @@ em_result em_propogate_event(em_ctx*               ctx,
     em_node   nodes[MAX_UI_DEPTH];
     size_t    found_amount;
     em_result res;
-    res = em_collect_parents(ctx, initial, nodes, MAX_UI_DEPTH, &found_amount);
+    res = em_collect_parents(tree, ctx, initial, nodes, MAX_UI_DEPTH, &found_amount);
     EM_EXPECT(res);
     for (size_t i = 0; i < found_amount; i++) {
         em_handle handle = handles->data[nodes[i].handle_idx];

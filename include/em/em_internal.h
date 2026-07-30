@@ -42,7 +42,8 @@ em_result em_validate_handle(em_resources* resources, em_handle* handle) {
  *  @invariant Since handles and tree nodes are strongly linked this requires a tree operation
  *             afterward to set the new handle index.
  */
-em_result em_remove_handle(em_resources* resources, em_handle* handle, em_idx handle_idx) {
+static inline em_result
+em_remove_handle(em_resources* resources, em_handle* handle, em_idx handle_idx) {
     if (handle_idx == EM_IDX_NULL) {
         return EM_ERR_INVALID_INDEX;
     }

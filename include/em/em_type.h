@@ -286,8 +286,6 @@ typedef enum {
  *
  *
  * */
-void em_print_result(em_result result) {
-}
 
 /**
  * @brief Ensure a dynamically allocated array has sufficient capacity.
@@ -311,7 +309,7 @@ void em_print_result(em_result result) {
  * @retval EM_OK Success.
  * @retval EM_ERR_OUT_OF_MEMORY Allocation failed.
  */
-em_result
+static inline em_result
 em_reserve(em_ctx* ctx, void** data, size_t* capacity, size_t min_capacity, size_t elem_size) {
     if (*capacity >= min_capacity) {
         return EM_OK;

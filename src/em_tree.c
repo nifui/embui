@@ -33,6 +33,12 @@ void em_tree_destroy(em_ctx* ctx, em_tree* tree) {
 #endif
 }
 
+// Method for a more efficient bullk add than multiple em_tree_add calls.
+
+em_result
+em_tree_bulk_add(em_ctx* ctx, em_tree* tree, em_idx parent, size_t amount, em_idx* handle_idxs) {
+}
+
 em_result em_tree_add(em_ctx* ctx, em_tree* tree, em_idx parent, em_idx* idx) {
     em_result res;
     if (!tree || !idx)

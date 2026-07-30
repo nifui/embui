@@ -227,6 +227,7 @@ em_result em_register_callback(em_ctx*               ctx,
  * @retval EM_ERR_CAPACITY The parent collection array did not have enough capacity.
  */
 em_result em_propogate_event(em_ctx*               ui,
+                             em_tree*              tree,
                              em_handles*           handles,
                              em_callback_registry* registry,
                              em_event*             event,

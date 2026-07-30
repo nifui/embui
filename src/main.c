@@ -35,13 +35,30 @@
  *  */
 
 #include <em/em.h>
-#include <stdio.h>
 
-int black_box(void* type) {
-    printf("type: %p \n", (char*)type);
-    return -1;
+void myfree(void* ptr, void* context) {
+    free(ptr);
+}
+
+void* myalloc(size_t size, void* context) {
+    return malloc(size);
+}
+
+void* myrealloc(void* ptr, size_t new, void* context) {
+    return realloc(ptr, new);
 }
 
 int main() {
+    em_allocator allocator = {
+        .free    = myfree,
+        .alloc   = myalloc,
+        .realloc = myrealloc,
+        .context = NULL,
+    };
+
+    em_ctx ctx = {.allocator = allocator};
+    em_ui  ui  = {0};
+    em_add_prim(&ctx, &ui, EM_NODE_ROOT, DEFAULT_STYLE_IDX, RECT);
+
     return 0;
 }

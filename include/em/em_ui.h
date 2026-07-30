@@ -213,7 +213,8 @@ int em_init_ui(struct em_ui* ui);
  *
  * @return Return value description
  */
-em_result em_add_prim(em_ctx* ctx, em_ui* ui, em_idx parent_idx, em_primitive_type type);
+em_result
+em_add_prim(em_ctx* ctx, em_ui* ui, em_idx parent_idx, em_idx style_idx, em_primitive_type type);
 
 /**
  * @brief Defines a list of elements that share the same prim.
@@ -229,10 +230,10 @@ em_result em_add_prim(em_ctx* ctx, em_ui* ui, em_idx parent_idx, em_primitive_ty
  *
  * @retval EM_OK
  */
-em_result em_shared_prims(em_ctx*    ctx,
-                          em_ui*     ui,
-                          em_handle* reference,
-                          size_t     shared_count,
-                          em_handle* dst_handles,
-                          em_idx*    tree_idx);
+em_result em_shared_primss(em_ctx*    ctx,
+                           em_ui*     ui,
+                           em_handle* reference,
+                           size_t     shared_count,
+                           em_handle* dst_handles,
+                           em_idx*    tree_idx);
 #endif

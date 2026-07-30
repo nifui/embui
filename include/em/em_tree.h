@@ -59,6 +59,25 @@ em_result em_tree_init(em_tree* tree);
  * @param ctx Memory allocation context.
  */
 void em_tree_destroy(em_ctx* ctx, em_tree* tree);
+
+/**
+ * @brief Bulk adds many nodes which yields better performance than repeated calls.
+ *
+ * @param ctx Memory allocation context.
+ * @param tree Tree with nodes.
+ * @param parent The node to add children to.
+ * @param amount The amount of nodes to add. handle_idxs size must match.
+ * @param handle_idxs Array of handle indices that each node should have.
+ *
+ * @retval EM_OK Successfully added the requested amount of nodes.
+ *
+ *
+ *
+ *
+ */
+em_result
+em_tree_bulk_add(em_ctx* ctx, em_tree* tree, em_idx parent, size_t amount, em_idx* handle_idxs);
+
 /**
  * @brief Creates a new node.
  *
