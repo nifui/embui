@@ -1,4 +1,9 @@
+#pragma once
+#ifndef EM_CMD_H
+#define EM_CMD_H
+
 #include "em_ui.h"
+#include "em_type.h"
 
 // If DMA is not supported/intended, place a function that returns NULL.
 // This will indicate to the function calling for a DMA to return that capacity has been reached.
@@ -65,7 +70,19 @@ typedef struct em_save_state {
     size_t current_depth;
 } em_save_state;
 
-// Allow sending commands in batches within a constrained size buffer.
-// Avoids dynamic memory allocation and can be used for debugging what's going work.
-// Function pointers can also be used instead.
+#define EM_CALL
+
+// Prevent switching between different command methods.
+#ifdef EM_EMIT
 int em_emit_cmd();
+
+#elif defined(EM_FIXED)
+int em_fixed_cmd();
+
+#elif defined(EM_CALL)
+// Requires drawer to have valid functions for the specified primitives.
+#include "em_draw.h"
+int em_call_cmd(em_ctx* ctx, em_ui* ui, em_drawer* drawer);
+
+#endif
+#endif

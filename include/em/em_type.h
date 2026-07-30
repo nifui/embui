@@ -41,7 +41,7 @@
  *
  * Override by defining `EM_IDX_TYPE` before including this header.
  */
-#define EM_IDX_TYPE uint32_t
+#define EM_IDX_TYPE size_t
 #endif
 
 /**
@@ -233,6 +233,18 @@ typedef struct em_ctx {
         sizeof(*(vec).data),               \
     )
 // clang-format on
+
+/**
+ * @brief Allocates an amount of memory that will never change.
+ *
+ * @param parameter Description of parameter.
+ *
+ * @return Return value description
+ */
+
+#define EM_STATIC_ALLOCATE(type)                                                                   \
+    do {                                                                                           \
+    } while (0)
 
 /**
  * @brief Result codes returned by library functions.

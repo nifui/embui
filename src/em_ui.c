@@ -9,10 +9,6 @@
 // wanna deal with the hassle of manually adding to a callback pool it's fine.
 
 // The em_ctx is seperated from the UI, to allow it to be reused across multiple UIs.
-typedef struct em_ui {
-    em_tree*      tree;
-    em_resources* resources;
-} em_ui;
 
 // This is the dumbest fix ever for a problem involving headers.
 em_resources* em_get_resources(em_ui* ui) {
@@ -30,7 +26,6 @@ em_result em_add_prim(em_ctx* ctx, em_ui* ui, em_idx parent_idx, em_primitive_ty
     em_result res;
     res = em_tree_add(ctx, ui->tree, parent_idx, &tree_idx);
     EM_EXPECT(res);
-
     res = em_add_resource(ctx, ui->resources, type, &res_idx);
     EM_EXPECT(res);
 
@@ -46,15 +41,29 @@ em_result em_add_prim(em_ctx* ctx, em_ui* ui, em_idx parent_idx, em_primitive_ty
     return EM_OK;
 }
 
-// Creates handles that takes an already created prim and shares it with n other handles.
-// Could be useful in an array of elements that share the same property.
-// Source of uniquness comes from the tree which does not make any assumptions about duplicate
-// copies.
-//
-//
-em_result em_shared_prims(size_t shared_count, em_handle* dst_handles) {
+// Assumed that the shared prim's are siblings.
+em_result em_shared_prims(em_ctx*    ctx,
+                          em_ui*     ui,
+                          em_handle* reference,
+                          size_t     shared_count,
+                          em_handle* dst_handles,
+                          em_idx*    tree_idx) {
+
+    em_result res;
 
     for (size_t i = 0; i < shared_count; i++) {
+        // What should be copied?
+        // The tree_idx should always be unique .
+        // Styling is shared because its required but callbacks aren't so they aren't shared.
+        em_handle handle = {.prim_idx     = reference->prim_idx,
+                            .style_idx    = reference->style_idx,
+                            .tree_idx     = tree_idx[i],
+                            .callback_idx = EM_IDX_NULL};
+        // The handles are guaranteed contiguous so just return the start_idx and the user can
+        // calculate via shared_count + start_idx.
+        res = em_add_handle(ctx, ui->resources, handle);
+
+        EM_EXPECT(res);
     }
 }
 

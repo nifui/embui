@@ -20,7 +20,6 @@
 
 #ifdef AUTOCOMPACT
 #endif
-#include "em_ui.h"
 #include "em.h"
 
 /**
@@ -45,6 +44,21 @@ typedef struct em_tree {
     EM_VECTOR(em_idx, free_list);
 } em_tree;
 
+/**
+ * @brief Initialize the tree structure
+ *
+ * @param tree Pointer to the tree structure.
+ *
+ * @return EM_OK Tree was initialized successfully.
+ */
+em_result em_tree_init(em_tree* tree);
+
+/**
+ * @brief Destroys the tree if memory was dynamically allocated otherwise return.
+ *
+ * @param ctx Memory allocation context.
+ */
+void em_tree_destroy(em_ctx* ctx, em_tree* tree);
 /**
  * @brief Creates a new node.
  *
@@ -131,14 +145,19 @@ em_result em_node_swap(em_tree* tree, em_idx a, em_idx b);
  * @param src_tree Source tree.
  *
  * @return Operation status.
+ *
+ *
+ * @note While this may allow arbitrary definitions of a widget tree, it does do calculations.
+ *       If you wanna avoid that use a #define directive to create a widget that is composed of
+ *       several em_node_add operations that act on an em_tree that it takes.
  */
 em_result em_add_subtree(em_ctx* ctx, em_idx dst_idx, em_tree* dst_tree, em_tree* src_tree);
 
 /**
  * @brief Collect parents until root is reached
  *
- * Mainly for event propogation where when attempting to find a callback it only traverses through
- * the parents.
+ * Mainly for event propogation where when attempting to find a callback it only traverses
+ * through the parents.
  *
  * @param ctx Memory allocation context.
  * @param target Target index.
@@ -147,33 +166,15 @@ em_result em_add_subtree(em_ctx* ctx, em_idx dst_idx, em_tree* dst_tree, em_tree
  * @param[out] dst_nodes Storage for parent nodes that are found.
  *
  * @retval EM_OK Parents were successfully collected.
- * @retval EM_ERR_CAPACITY The supplied collection array was not big enough and not all nodes were
- *         collected.
+ * @retval EM_ERR_CAPACITY The supplied collection array was not big enough and not all nodes
+ * were collected.
  *
  * */
-em_result em_collect_parents(em_ctx*  ctx,
+em_result em_collect_parents(em_tree* tree,
+                             em_ctx*  ctx,
                              em_idx   target,
                              em_node* dst_nodes,
                              size_t   dst_capacity,
                              size_t*  found_amount);
-
-/**
- * @brief Sets the handle for a given tree node
- *
- * @param parameter Description of parameter.
- *
- * @return Return value description
- *  @note There's probably a better solution as this has no checks.
- */
-em_result em_set_handle(em_tree* tree, em_idx target, em_idx handle_idx) {
-    if (!tree) {
-        return EM_ERR_INVALID_ARGUMENT;
-    }
-    if (tree->nodes.size <= target) {
-        return EM_ERR_INVALID_INDEX;
-    }
-    tree->nodes.data[target].handle_idx = handle_idx;
-    return EM_OK;
-}
 
 #endif

@@ -117,6 +117,26 @@ typedef EM_FLOAT_TYPE em_float;
 #define EM_FLOAT_SUB(a, b) ((a) - (b))
 #endif
 
+#ifndef EM_LERP
+#define EM_LERP(a, b, t) EM_FLOAT_ADD((a), EM_FLOAT_MUL(EM_FLOAT_SUB((b), (a)), (t)))
+#endif
+
+#ifndef EM_PI
+#define EM_PI ((em_float)3.14159265358979323846f)
+#endif
+
+#ifndef EM_SIN
+#define EM_SIN sinf
+#endif
+
+#ifndef EM_COS
+#define EM_COS cosf
+#endif
+
+#ifndef EM_POW
+#define EM_POW powf
+#endif
+
 /*
    vec2
 */

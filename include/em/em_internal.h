@@ -67,10 +67,7 @@ em_result em_add_handle(em_ctx* ctx, em_resources* resources, em_handle handle) 
                      resources->handles.size + 1,
                      sizeof(em_handle));
     EM_EXPECT(res);
-
-    resources->handles.data[resources->handles.size] = handle;
-    resources->handles.size += 1;
-
+    EM_PUSH(resources->handles, handle);
     return EM_OK;
 }
 
@@ -83,9 +80,7 @@ em_add_resource(em_ctx* ctx, em_resources* resources, em_primitive_type type, em
                      resources->prims.size + 1,
                      sizeof(em_prim));
     EM_EXPECT(res);
-
-    resources->prims.data[resources->prims.size] = (em_prim){.type = type};
-    resources->prims.size += 1;
+    EM_PUSH(resources->prims, (em_prim){.type = type});
     return EM_OK;
 }
 

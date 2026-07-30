@@ -8,6 +8,6 @@
 
 typedef struct em_drawer {
 
-} em_draw;
+} em_drawer;
 
 #endif

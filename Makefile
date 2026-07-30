@@ -7,7 +7,10 @@ TARGET = main.o
 
 SRC = src/main.c 
 
-all: run 
+all: clean run 
+clean: 
+	rm -rf main.o
+
 run: $(TARGET)
 	./$(TARGET)
 	echo "Done"
@@ -19,5 +22,5 @@ $(TARGET): $(SRC)
 docs: 
 	doxygen 
 	miniserve html/
-.PHONY: all run docs
+.PHONY: all run docs clean
 
