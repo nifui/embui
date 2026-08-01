@@ -286,6 +286,30 @@ typedef enum {
  *
  *
  * */
+static const char* em_error_string(em_result result) {
+    switch (result) {
+    case EM_OK:
+        return "Success";
+    case EM_ERR_INVALID_ARGUMENT:
+        return "Invalid function argument";
+    case EM_ERR_INVALID_INDEX:
+        return "Invalid index";
+    case EM_ERR_OUT_OF_MEMORY:
+        return "Memory allocation failed";
+    case EM_ERR_POOL_FULL:
+        return "Resource pool is full";
+    case EM_ERR_MISSING_TREE:
+        return "Missing tree object";
+    case EM_ERR_INVALID_HANDLE:
+        return "Invalid handle";
+    case EM_ERR_OUT_OF_BOUNDS:
+        return "Out of bounds";
+    case EM_ERR_CAPACITY:
+        return "Capacity exceeded";
+    default:
+        return "Unknown error";
+    }
+}
 
 /**
  * @brief Ensure a dynamically allocated array has sufficient capacity.
@@ -309,7 +333,7 @@ typedef enum {
  * @retval EM_OK Success.
  * @retval EM_ERR_OUT_OF_MEMORY Allocation failed.
  */
-static inline em_result
+static em_result
 em_reserve(em_ctx* ctx, void** data, size_t* capacity, size_t min_capacity, size_t elem_size) {
     if (*capacity >= min_capacity) {
         return EM_OK;

@@ -12,11 +12,10 @@
 
 #pragma once
 
-#ifndef EM_INTERNL_H
-#define EM_INTERNL_H
+#ifndef EM_INTERNAL_H
+#define EM_INTERNAL_H
 
 #include "em_ui.h"
-#include "em_pool.h"
 #include "em_type.h"
 
 /**
@@ -24,7 +23,6 @@
  *
  * @invariant Cannot check the tree_idx field as no access. Maybe change in the future.
  * */
-
 em_result em_validate_handle(em_resources* resources, em_handle* handle) {
     TODO("Implement the validate handles function");
     return EM_OK;
@@ -72,6 +70,7 @@ em_result em_add_handle(em_ctx* ctx, em_resources* resources, em_handle handle) 
     return EM_OK;
 }
 
+// Rename to em_add_prim later since that's all it does.
 em_result
 em_add_resource(em_ctx* ctx, em_resources* resources, em_primitive_type type, em_idx* res_idx) {
     em_result res;

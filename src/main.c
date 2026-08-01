@@ -36,6 +36,11 @@
 
 #include <em/em.h>
 
+static em_node   nodes[64];
+static em_handle handles[64];
+static em_style  styles[16];
+static em_prim   prims[64];
+
 void myfree(void* ptr, void* context) {
     free(ptr);
 }
@@ -55,10 +60,26 @@ int main() {
         .realloc = myrealloc,
         .context = NULL,
     };
+    em_ui_desc desc = {
+        .nodes           = nodes,
+        .node_capacity   = 64,
+        .prims           = prims,
+        .prim_capacity   = 64,
+        .styles          = styles,
+        .style_capacity  = 16,
+        .handles         = handles,
+        .handle_capacity = 64,
+    };
+    em_result res;
+    em_ctx    ctx = {.allocator = allocator};
+    em_ui     ui  = {0};
+    em_handle root;
+    res = em_init_ui(&ctx, &ui, &desc, &root);
+    EM_EXPECT(res);
 
-    em_ctx ctx = {.allocator = allocator};
-    em_ui  ui  = {0};
-    em_add_prim(&ctx, &ui, EM_NODE_ROOT, DEFAULT_STYLE_IDX, RECT);
+    res = em_add_prim(&ctx, &ui, EM_NODE_ROOT, DEFAULT_STYLE_IDX, RECT);
+    EM_EXPECT(res);
 
+    printf("%s", em_error_string(res));
     return 0;
 }

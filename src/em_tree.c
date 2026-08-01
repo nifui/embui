@@ -5,17 +5,31 @@ static inline int em_tree_valid(const em_tree* tree, em_idx idx) {
     return idx != EM_IDX_NULL && idx < tree->nodes.size;
 }
 
-em_result em_tree_init(em_tree* tree) {
+em_result em_tree_init(em_ctx* ctx, em_tree* tree) {
     if (!tree) {
         return EM_ERR_INVALID_ARGUMENT;
     }
-    tree->nodes.data     = NULL;
-    tree->nodes.size     = 0;
-    tree->nodes.capacity = 0;
+
+    tree->nodes.size = 0;
 
     tree->free_list.data     = NULL;
     tree->free_list.size     = 0;
     tree->free_list.capacity = 0;
+
+    em_result res =
+        em_reserve(ctx, (void**)&tree->nodes.data, &tree->nodes.capacity, 1, sizeof(em_node));
+    EM_EXPECT(res);
+
+    tree->nodes.data[EM_NODE_ROOT] = (em_node){
+        .parent      = EM_IDX_NULL,
+        .prev        = EM_IDX_NULL,
+        .next        = EM_IDX_NULL,
+        .first_child = EM_IDX_NULL,
+        .last_child  = EM_IDX_NULL,
+        .handle_idx  = 0,
+    };
+
+    tree->nodes.size = 1;
 
     return EM_OK;
 }
@@ -40,49 +54,49 @@ em_tree_bulk_add(em_ctx* ctx, em_tree* tree, em_idx parent, size_t amount, em_id
 }
 
 em_result em_tree_add(em_ctx* ctx, em_tree* tree, em_idx parent, em_idx* idx) {
-    em_result res;
     if (!tree || !idx)
         return EM_ERR_INVALID_ARGUMENT;
+
+    if (parent == EM_IDX_NULL || parent >= tree->nodes.size)
+        return EM_ERR_INVALID_INDEX;
 
     em_idx node_idx;
 
     if (tree->free_list.size) {
         node_idx = tree->free_list.data[--tree->free_list.size];
     } else {
-
-        res = em_reserve(ctx,
-                         (void**)&tree->nodes.data,
-                         &tree->nodes.capacity,
-                         tree->nodes.size + 1,
-                         sizeof(em_node));
+        em_result res = em_reserve(ctx,
+                                   (void**)&tree->nodes.data,
+                                   &tree->nodes.capacity,
+                                   tree->nodes.size + 1,
+                                   sizeof(em_node));
         EM_EXPECT(res);
+
         node_idx = tree->nodes.size++;
     }
 
-    em_node node = {.parent      = parent,
-                    .prev        = EM_IDX_NULL,
-                    .next        = EM_IDX_NULL,
-                    .first_child = EM_IDX_NULL,
-                    .last_child  = EM_IDX_NULL,
-                    .handle_idx  = EM_IDX_NULL};
+    tree->nodes.data[node_idx] = (em_node){
+        .parent      = parent,
+        .prev        = EM_IDX_NULL,
+        .next        = EM_IDX_NULL,
+        .first_child = EM_IDX_NULL,
+        .last_child  = EM_IDX_NULL,
+        .handle_idx  = EM_IDX_NULL,
+    };
 
-    tree->nodes.data[node_idx] = node;
+    em_node* p = &tree->nodes.data[parent];
 
-    if (parent != EM_IDX_NULL) {
-        em_node* p = &tree->nodes.data[parent];
+    if (p->last_child == EM_IDX_NULL) {
+        p->first_child = node_idx;
+        p->last_child  = node_idx;
+    } else {
+        em_idx   last_idx = p->last_child;
+        em_node* last     = &tree->nodes.data[last_idx];
 
-        if (p->last_child == EM_IDX_NULL) {
-            p->first_child = node_idx;
-            p->last_child  = node_idx;
-        } else {
-            em_node* last = &tree->nodes.data[p->last_child];
+        last->next                      = node_idx;
+        tree->nodes.data[node_idx].prev = last_idx;
 
-            last->next = node_idx;
-
-            tree->nodes.data[node_idx].prev = p->last_child;
-
-            p->last_child = node_idx;
-        }
+        p->last_child = node_idx;
     }
 
     *idx = node_idx;

@@ -73,10 +73,7 @@ These macros may be defined before including <em.h> to customize the library.
 #define EM_H
 
 #include "em_math.h"
-#include "em_real.h"
-#include "em_draw.h"
 #include "em_ui.h"
-#include "em_pool.h"
 #include "em_tree.h"
 #include "em_event.h"
 #endif

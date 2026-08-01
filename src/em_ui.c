@@ -1,21 +1,45 @@
 #include <em/em_ui.h>
 #include <em/em_tree.h>
-#include <em/em_pool.h>
 #include <em/em_event.h>
 #include <em/em_internal.h>
-#include <em/em_type.h>
 
 // Offer more raw capabilities and then add an abstraction layer over it so if some people don't
 // wanna deal with the hassle of manually adding to a callback pool it's fine.
 
 // The em_ctx is seperated from the UI, to allow it to be reused across multiple UIs.
 
-// This is the dumbest fix ever for a problem involving headers.
-em_resources* em_get_resources(em_ui* ui) {
-    return ui->resources;
-}
+em_result em_init_ui(em_ctx* ctx, em_ui* ui, em_ui_desc* desc, em_handle* root_handle) {
+    em_result res;
+    em_idx    resource_idx;
+    if (desc != NULL) {
+        ui->tree.nodes.data            = desc->nodes;
+        ui->tree.nodes.capacity        = desc->node_capacity;
+        ui->resources.handles.data     = desc->handles;
+        ui->resources.handles.capacity = desc->handle_capacity;
+        ui->resources.styles.data      = desc->styles;
+        ui->resources.styles.capacity  = desc->style_capacity;
+        ui->resources.prims.data       = desc->prims;
+        ui->resources.prims.capacity   = desc->prim_capacity;
+    } else {
+    }
 
-int em_init_ui(struct em_ui* ui) {
+    // Create the initial root node along with a default style.
+    res = em_tree_init(ctx, &ui->tree);
+    EM_EXPECT(res);
+    // Create the primitive linked to said root node.
+    res = em_add_resource(ctx, &ui->resources, RECT, &resource_idx);
+    EM_EXPECT(res);
+
+    res = em_add_handle(ctx,
+                        &ui->resources,
+                        (em_handle){.style_idx    = DEFAULT_STYLE_IDX,
+                                    .callback_idx = EM_IDX_NULL,
+                                    .prim_idx     = resource_idx,
+                                    .tree_idx     = EM_NODE_ROOT});
+    EM_EXPECT(res);
+
+    root_handle = &ui->resources.handles.data[EM_NODE_ROOT];
+    return EM_OK;
 }
 
 // Adds a new primitive meaning a new em_prim is put into the prims field.
@@ -26,21 +50,20 @@ em_add_prim(em_ctx* ctx, em_ui* ui, em_idx parent_idx, em_idx style_idx, em_prim
     em_idx    res_idx;
     em_result res;
 
-    res = em_tree_add(ctx, ui->tree, parent_idx, &tree_idx);
+    res = em_tree_add(ctx, &ui->tree, parent_idx, &tree_idx);
     EM_EXPECT(res);
 
-    res = em_add_resource(ctx, ui->resources, type, &res_idx);
+    res = em_add_resource(ctx, &ui->resources, type, &res_idx);
     EM_EXPECT(res);
 
     res = em_add_handle(ctx,
-                        ui->resources,
+                        &ui->resources,
                         (em_handle){.tree_idx     = tree_idx,
-                                    .prim_idx     = ui->resources->prims.size,
+                                    .prim_idx     = ui->resources.prims.size,
                                     .callback_idx = EM_IDX_NULL,
                                     .style_idx    = style_idx});
     EM_EXPECT(res);
-
-    ui->tree->nodes.data[tree_idx].handle_idx = ui->resources->handles.size - 1;
+    ui->tree.nodes.data[tree_idx].handle_idx = ui->resources.handles.size - 1;
     return EM_OK;
 }
 
@@ -49,8 +72,8 @@ em_add_prim(em_ctx* ctx, em_ui* ui, em_idx parent_idx, em_idx style_idx, em_prim
 em_result em_shared_prims(em_ctx* ctx, em_ui* ui, em_handle* reference, size_t shared_count) {
 
     em_result         res;
-    em_idx            parent_idx = ui->tree->nodes.data[reference->tree_idx].parent;
-    em_primitive_type prim_type  = ui->resources->prims.data[reference->prim_idx].type;
+    em_idx            parent_idx = ui->tree.nodes.data[reference->tree_idx].parent;
+    em_primitive_type prim_type  = ui->resources.prims.data[reference->prim_idx].type;
 
     if (parent_idx == EM_NODE_NULL) {
         return EM_ERR_INVALID_INDEX;

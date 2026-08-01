@@ -2,11 +2,6 @@
  * @file em_ui.h
  *
  *
- *
- *
- *
- *
- *
  * */
 
 #pragma once
@@ -17,96 +12,8 @@
 #include "em_math.h"
 #include "em_type.h"
 #include <stddef.h>
-
-/**
- * @brief Opaque type to em_tree
- */
-typedef struct em_tree em_tree;
-
-/**
- * @brief Opaque type to em_resources
- */
-typedef struct em_resources em_resources;
-
-/**
- * @brief Opaque type to em_handle
- */
-typedef struct em_handle em_handle;
-
-/**
- * @brief Struct containing em_tree and em_resources.
- */
-typedef struct em_ui {
-    em_tree*      tree;
-    em_resources* resources;
-} em_ui;
-
-/**
- * @brief Enum tag for em_prim
- */
-typedef enum em_primitive_type {
-    RECT,
-    TEXT,
-    LINE,
-    CIRCLE,
-} em_primitive_type;
-
-#ifdef USE_INT16
-// 16 bytes
-typedef em_recti16 em_rect;
-// 16 byte
-typedef em_linei16 em_line;
-// 8 bytes
-typedef em_vec2i16 em_vec2;
-
-#else
-// 8 bytes
-typedef em_recti em_rect;
-// 8 bytes
-typedef em_linei em_line;
-// 4 bytes
-typedef em_vec2i em_vec2;
-
-#endif
-// 4 butes
-typedef em_vec2 em_point;
-
-/**
- * @brief Representation of a circle.
- */
-typedef struct em_circle {
-    em_vec2 center;
-    int     radius;
-} em_circle;
-
-/**
- * @brief Pointer to a string.
- */
-typedef struct em_text {
-    const char** text;
-} em_text;
-
-/**
- * @brief Primitive for UI drawing
- */
-typedef struct {
-    em_primitive_type type;
-
-    union {
-        em_rect   r;
-        em_line   l;
-        em_circle c;
-        em_point  p;
-        em_text   t;
-    };
-} em_prim;
-
-/**
- * @brief Color representation
- */
-typedef struct em_color {
-    uint8_t r, g, b, a;
-} em_color;
+#include "em_tree.h"
+#include "em_elements.h"
 
 /**
  * @brief A handle to resources, referenced by @ref em_node
@@ -177,19 +84,49 @@ typedef EM_VECTOR(em_prim, em_prims);
 typedef EM_VECTOR(em_style, em_styles);
 
 /**
+ * @brief Opaque type to em_resources
+ */
+
+typedef struct em_resources {
+    em_handles handles;
+    em_styles  styles;
+    em_prims   prims;
+} em_resources;
+
+/**
+ * @brief Descriptor for initializing @ref em_ui.
+ *
+ * @return Return value description
+ */
+typedef struct {
+    em_node* nodes;
+    em_idx   node_capacity;
+
+    em_handle* handles;
+    em_idx     handle_capacity;
+
+    em_style* styles;
+    em_idx    style_capacity;
+
+    em_prim* prims;
+    em_idx   prim_capacity;
+} em_ui_desc;
+
+/**
+ * @brief Struct containing em_tree and em_resources.
+ */
+typedef struct em_ui {
+    em_tree      tree;
+    em_resources resources;
+} em_ui;
+
+/**
  * @brief Pool containing other pools.
  *
  *
  *
  *
  * */
-typedef struct em_resources {
-    em_handles handles;
-    em_styles  styles;
-    em_prims   prims;
-
-} em_resources;
-
 em_result em_pool_init(em_ctx* ctx, em_resources* resources);
 /**
  *
@@ -205,7 +142,19 @@ em_result em_change_style(em_ctx* ctx, em_resources* resources, em_idx target);
 
 int em_ctx_init(em_ctx* ctx, em_allocator allocator);
 
-int em_init_ui(struct em_ui* ui);
+/**
+ * @brief Function for initializing the UI.
+ *
+ * @param ctx Optional. Memory allocator context. Must be NULL if @p desc is provided.
+ * @param ui Pointer to a user initialized UI struct.
+ * @param desc Optional. Memory descriptor. Must be NULL if @p ctx is provided.
+ * @param[out] root_handle Output parameter that holds the handle to the root node that is
+ *             initialized by default.
+ *
+ * @return Return value description
+ */
+
+em_result em_init_ui(em_ctx* ctx, em_ui* ui, em_ui_desc* desc, em_handle* root_handle);
 /**
  * @brief Function description
  *

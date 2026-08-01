@@ -63,7 +63,6 @@
 // Defines the type to use to define the size of the registry.
 
 #include "em_ui.h"
-#include "em_pool.h"
 
 /**
  * @brief Types of input events.

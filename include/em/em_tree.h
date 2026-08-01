@@ -20,7 +20,8 @@
 
 #ifdef AUTOCOMPACT
 #endif
-#include "em.h"
+#include "em_math.h"
+#include "em_type.h"
 
 /**
  * @brief A node in an intrusive tree.
@@ -51,7 +52,7 @@ typedef struct em_tree {
  *
  * @return EM_OK Tree was initialized successfully.
  */
-em_result em_tree_init(em_tree* tree);
+em_result em_tree_init(em_ctx* ctx, em_tree* tree);
 
 /**
  * @brief Destroys the tree if memory was dynamically allocated otherwise return.
