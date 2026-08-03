@@ -29,7 +29,10 @@
  * floats or implement custom curve fitting functions to properly interpolate between frames to give
  * a smooth look. Allow specifying properties to lerp between, etc.
  *
- *
+ * Handles never get reorderedd however the nodes within the tree can. By making handles act as the
+ * stable reference we can reoder the tree with less information. Handles stay in order while the
+ * tree may swap. Along with that we can add changes to the API without causing breaking changes as
+ * em_handle is a single type.
  *
  *
  *  */

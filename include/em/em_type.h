@@ -50,6 +50,14 @@
 typedef EM_IDX_TYPE em_idx;
 
 /**
+ *
+ * @brief Handle type
+ *
+ *
+ * */
+typedef em_idx em_handle;
+
+/**
  * @brief Sentinel representing an invalid node index.
  */
 #define EM_NODE_NULL ((em_idx) - 1)
@@ -233,18 +241,6 @@ typedef struct em_ctx {
         sizeof(*(vec).data),               \
     )
 // clang-format on
-
-/**
- * @brief Allocates an amount of memory that will never change.
- *
- * @param parameter Description of parameter.
- *
- * @return Return value description
- */
-
-#define EM_STATIC_ALLOCATE(type)                                                                   \
-    do {                                                                                           \
-    } while (0)
 
 /**
  * @brief Result codes returned by library functions.

@@ -174,6 +174,7 @@ typedef struct {
 
     /** Callback invoked for dispatched events. */
     em_callback callback;
+
 } em_registry_value;
 
 /**
@@ -188,7 +189,7 @@ typedef struct {
  * @brief Removes the callback associated with a widget.
  *
  * @param registry Callback registry.
- * @param handle_idx Widget whose callback should be removed.
+ * @param handle_idx Widget whose callback should be removed
  *
  * @retval EM_OK Callback removed.
  * @retval EM_ERR_INVALID_HANDLE No callback exists for the handle.
@@ -196,7 +197,7 @@ typedef struct {
 em_result em_deregister_callback(em_callback_registry* registry, em_idx handle_idx);
 
 /**
- * @brief Registers a callback for a widget.
+ * @brief Registers a callback which makes it available for a widget to link to.
  *
  * @param ctx Library context.
  * @param registry Callback registry.
@@ -227,7 +228,6 @@ em_result em_register_callback(em_ctx*               ctx,
  */
 em_result em_propogate_event(em_ctx*               ui,
                              em_tree*              tree,
-                             em_handles*           handles,
                              em_callback_registry* registry,
                              em_event*             event,
                              em_idx                initial);
@@ -250,6 +250,12 @@ em_result em_propogate_event(em_ctx*               ui,
 // specifically for UI layout. It encodes the bounding box of the outputted elements in the tree
 // which can be used for hit testing.
 
+// If we encode the layout relationship its basically just O(tree_depth) + some layout calculations.
+// But this assumes that no children elements overlap between two parents. The fix for this would be
+// working from the bottom up but that ends up forcing a whole recalculation of the tree's layout if
+// we don't have it prior. A parallel layout tree could be created at the cost of more memory. I
+// don't think there's a good workaround having a persistent layout tree whether it be through
+// commands or another struct.
 em_result em_find_target();
 
 #endif

@@ -3,6 +3,13 @@
 #define EM_ELEMENTS_H
 #include "em_math.h"
 
+// The main macro could perform substitution of a macro call with a single parameter and add another
+// or something.
+//
+// List ot elements.
+//
+#define LIST(x)
+
 /**
  * @brief Enum tag for em_prim
  */

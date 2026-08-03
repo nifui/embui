@@ -15,25 +15,18 @@
 #include "em_tree.h"
 #include "em_elements.h"
 
-/**
- * @brief A handle to resources, referenced by @ref em_node
- * */
-typedef struct em_handle {
-    em_idx tree_idx;     //< Index for the tree. Can be shared
+typedef struct em_resource_ref {
+    em_idx tree_idx;     //< Index for the tree.
     em_idx prim_idx;     //< Corresponding pool index specified by @ref type.
     em_idx style_idx;    //< Index into the style pool. Can be shared.
     em_idx callback_idx; //< Index into the callback registry. Can be shared.
-} em_handle;
+} em_resource_reference;
 
-/**
- * @brief Contains a pool of handles.
- *
- * */
-typedef struct em_handles {
-    size_t     size;
-    size_t     capacity;
-    em_handle* data;
-} em_handles;
+typedef struct em_resource_references {
+    size_t                 size;
+    size_t                 capacity;
+    em_resource_reference* data;
+} em_resource_references;
 
 /**
  * @brief Styling for elements.
@@ -87,10 +80,42 @@ typedef EM_VECTOR(em_style, em_styles);
  * @brief Opaque type to em_resources
  */
 
+// If we avoid using a freelist we have to do a swap and pop strategy which leads to resource_refs
+// point to invalid resources. With a free list approach a generation counter isn't even needed as
+// all you need is to check if an index is in the free list. However this defauls to a linear scan
+// which can be fast assuming small free list. A generation counter in the handle would solve this
+// at the cost of some additional memory. For each group of related structures a generation counter
+// would be needed. Since each array can have stuff removed without affecting the other array each
+// array has to have their own generation counter. The smart move would be to shift away from using
+// seperate systems into a unified node but it leads to worse cache locality.
+//
+//
+//
+// We could make each resource store an array of the resource_refs handles that can allow us to
+// invalidate the resource without a search. This comes with huge memory costs.
+//
+// Reference counting would only solve the issue of shared memory leaking. Without reference
+// counting we don't know if an item is still in use by other objects and so we leave it alone
+// instead of removing it leading to orphaned items. A and B share C. A is removed. B is then
+// removed. Nothing references C but it doesn't know so it stays alive. With reference counting on C
+// it now knows that nothing relies on it so it can be freed. Relies on a manual call to a
+// cleanup function however to be valid.
+//
+// A generation + free list solves the problem of invalid references that might occur with direct
+// resource removal. A and B share C. We remove C but A and B still reference C and don't know it's
+// been removed/invalid. With a generation counter this is solved.
+//
+// Guaranteed traits:
+// For every resource_reference there is only one handle for it. For a deletion operation on the
+// resource_ref via a handle, the handle is invalidated and the resource ref removed. Then via
+// reference counting we can determine whether to open a slot up for reuse. (Requires a free list
+// for each shared resource + references field in each resource). References can just be a single
+// byte.
+//
 typedef struct em_resources {
-    em_handles handles;
-    em_styles  styles;
-    em_prims   prims;
+    em_styles styles;
+    em_prims  prims;
+    // Add to each struct a reference counter. At anything above
 } em_resources;
 
 /**
@@ -120,14 +145,8 @@ typedef struct em_ui {
     em_resources resources;
 } em_ui;
 
-/**
- * @brief Pool containing other pools.
- *
- *
- *
- *
- * */
 em_result em_pool_init(em_ctx* ctx, em_resources* resources);
+
 /**
  *
  *
