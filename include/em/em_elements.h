@@ -2,7 +2,7 @@
 #ifndef EM_ELEMENTS_H
 #define EM_ELEMENTS_H
 #include "em_math.h"
-
+#include "em_type.h"
 // The main macro could perform substitution of a macro call with a single parameter and add another
 // or something.
 //
@@ -58,7 +58,7 @@ typedef struct em_text {
 /**
  * @brief Primitive for UI drawing
  */
-typedef struct {
+typedef struct em_primitive {
     em_primitive_type type;
 
     union {
@@ -68,13 +68,16 @@ typedef struct {
         em_point  p;
         em_text   t;
     };
-} em_prim;
+} em_primitive;
 
-/**
- * @brief Color representation
- */
-typedef struct em_color {
-    uint8_t r, g, b, a;
-} em_color;
+// Calculates the axis alligned bounding box of a primitive based off its type.
+// The bounding-box will be calculated to the smallest possible.
+// If the bbox are used to determine collision certain cases like a line or point should use
+// specially made function that are much more efficient than a bbox calculation.
+// This assumes that the primitive was transformed prior and will not perform any transforms like
+// rotations.
+em_rect em_get_aabb(em_primitive* primitive);
+
+typedef EM_VECTOR(em_primitive, em_primitives);
 
 #endif

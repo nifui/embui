@@ -102,7 +102,7 @@ em_result em_tree_add(em_ctx* ctx, em_tree* tree, em_idx parent, em_idx* idx);
  *
  * Any children of the removed node are handled according to the tree's
  * removal policy.
- *
+and wri *
  * @param ctx Memory allocation context.
  * @param tree Tree to modify.
  * @param target Index of the node to remove.
@@ -140,7 +140,7 @@ em_result em_node_extract(em_ctx* ctx, em_tree* tree, em_idx target, em_node* ou
 em_result em_node_destroy(em_ctx* ctx, em_tree* tree, em_idx target);
 
 /**
- * @brief Swaps two nodes in the tree.
+and wri * @brief Swaps two nodes in the tree.
  *
  * All structural links are exchanged. The associated handles remain
  * attached to their original nodes.

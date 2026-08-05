@@ -22,6 +22,48 @@
  * @todo  Possibility that some of the operations could be implemented more efficienctly in terms of
  *        the algorithm used.
  *
+ * @idea Define a way to allow grouping of elements for quicker styling. Implement a macro that
+ *       allows users to define a style and the associated group. Rough idea: Let users insert a
+ *       handle into a group. This group can be targetted with specific styling. Users can create a
+ *       file called style.c or whatnot that contains defines for specific groups. Instead ofa
+ *       hashmap we could have the user define names attributed to a value. However this leaves a
+ *       lot to the user getting right. Issue is with templates where the inside might be hidden
+ * from the user. Maybe define a TAG macro?
+ *
+ *
+ *
+ * @optional Feature for allowing users to reserve types even with no references as a sort of
+ * caching layer.
+ *
+ *
+ *
+ *
+ * Notes if anything - Ignore
+ *
+ *
+ * @why Handles - Since we want to avoid making repeated allocation calls due to the primary target
+ * being embedded we should try to reuse already allocated memory as much as possible. Because of
+ * how stability is needed for a majority of the resources, the simple approach is using a handle to
+ * a resource reference. By hiding the internals of the resource_reference, the user cannot
+ *      reference stale resources and is fully managed.
+ *
+ * @why Reference counting - Helps to track shared and unused resources. Without it fragmentation is
+ * likely. Issues with ref counting is thread safety. Also resources that might need to be perserved
+ * even after all items that reference it don't exist, require the user to explicitly indicate. If
+ * the user forgets they reserved it, then the type can eat up memory. The user can easily miscall,
+ * leading to a resource cleanup even when items still refer to it. The fix here might be creating
+ * an explicit priority list for resources that should be kept, but leads to an extra layer of
+ * indirection. The ideal fix is just have the user keep the important type.
+ *
+ * @why Free list - Required with reference counting.
+ *
+ * @why Transparent types - User allocation is a pain to figure out due to different types sizes and
+ * overall API incompatility when adding new types. With transparent types, this is handled by the
+ * compiler. Only issue is the user must not try to just modify the structs directly. Any other
+ * workaround basically destroys the purpose of the opaque type so might as well make it
+ * transparent.
+ *
+ *
  * */
 
 /**
@@ -42,7 +84,6 @@
 static em_node   nodes[64];
 static em_handle handles[64];
 static em_style  styles[16];
-static em_prim   prims[64];
 
 void myfree(void* ptr, void* context) {
     free(ptr);
@@ -66,8 +107,6 @@ int main() {
     em_ui_desc desc = {
         .nodes           = nodes,
         .node_capacity   = 64,
-        .prims           = prims,
-        .prim_capacity   = 64,
         .styles          = styles,
         .style_capacity  = 16,
         .handles         = handles,

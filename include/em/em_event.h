@@ -60,9 +60,9 @@
 #ifndef EM_EVENTS_H
 #define EM_EVENTS_H
 #include <stddef.h>
-// Defines the type to use to define the size of the registry.
-
-#include "em_ui.h"
+#include "em_elements.h"
+#include "em_type.h"
+#include "em_tree.h"
 
 /**
  * @brief Types of input events.
@@ -70,7 +70,6 @@
 typedef enum em_event_type {
     /** Mouse input. */
     MOUSE,
-
     /** Keyboard input. */
     KEYBOARD
 } em_event_type;
@@ -163,27 +162,23 @@ typedef struct em_event {
 typedef void (*em_callback)(void* state, em_event event);
 
 /**
- * @brief Callback registration entry.
  */
-typedef struct {
+typedef struct em_handler {
     /** User-defined callback state. */
     void* state;
-
-    /** Widget associated with the callback. */
-    em_idx handle_idx;
 
     /** Callback invoked for dispatched events. */
     em_callback callback;
 
-} em_registry_value;
+    uint8_t ref_count; //**< How many resources reference this item */
+
+} em_handler;
 
 /**
  * @brief Registry containing all registered callbacks.
  */
-typedef struct {
-    /** Dynamic array of callback registrations. */
-    EM_VECTOR(em_registry_value, values);
-} em_callback_registry;
+/** Dynamic array of callback registrations. */
+typedef EM_VECTOR(em_handler, em_handlers);
 
 /**
  * @brief Removes the callback associated with a widget.
@@ -194,7 +189,7 @@ typedef struct {
  * @retval EM_OK Callback removed.
  * @retval EM_ERR_INVALID_HANDLE No callback exists for the handle.
  */
-em_result em_deregister_callback(em_callback_registry* registry, em_idx handle_idx);
+em_result em_remove_handler(em_handlers* handlers, em_idx handle_idx);
 
 /**
  * @brief Registers a callback which makes it available for a widget to link to.
@@ -207,10 +202,7 @@ em_result em_deregister_callback(em_callback_registry* registry, em_idx handle_i
  * @retval EM_OK Registration succeeded.
  * @retval EM_ERR_OUT_OF_MEMORY Registry growth failed.
  */
-em_result em_register_callback(em_ctx*               ctx,
-                               em_callback_registry* registry,
-                               em_registry_value*    value,
-                               em_idx*               dst_idx);
+em_result em_add_handler(em_ctx* ctx, em_handler* handler, em_handlers* handlers, em_idx* dst_idx);
 
 /**
  * @brief Dispatches an event through the widget hierarchy.
@@ -226,11 +218,11 @@ em_result em_register_callback(em_ctx*               ctx,
  * @retval EM_OK Event propagation completed.
  * @retval EM_ERR_CAPACITY The parent collection array did not have enough capacity.
  */
-em_result em_propogate_event(em_ctx*               ui,
-                             em_tree*              tree,
-                             em_callback_registry* registry,
-                             em_event*             event,
-                             em_idx                initial);
+em_result em_propogate_event(em_ctx*      ui,
+                             em_tree*     tree,
+                             em_handlers* handlers,
+                             em_event*    event,
+                             em_idx       initial);
 
 /**
  * @brief Performs hit testing to determine the target widget.

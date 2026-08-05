@@ -199,6 +199,33 @@ typedef struct em_ctx {
         size_t capacity;                                                                           \
     } name
 
+typedef struct em_free_list {
+    em_idx* idxs;
+    size_t  size;
+    size_t  capacity;
+} em_free_list;
+
+/**
+ * @brief Creates a reference counted type.
+ *
+ * @param
+ *
+ * @return Return value description
+ */
+#define EM_REF_COUNTED(name, type)                                                                 \
+    typedef struct name##_shared {                                                                 \
+        type   inner;                                                                              \
+        size_t refs;                                                                               \
+    } name##_shared
+
+/**
+ * @brief Macro that generates a vector that contains shared data.
+ *
+ * @param parameter Description of parameter.
+ *
+ * @return Return value description
+ */
+
 /**
  * @brief Append an element to a vector.
  *
@@ -274,6 +301,8 @@ typedef enum {
     /** The capacity of the provided storage was reached. */
     EM_ERR_CAPACITY,
 
+    /** The type is still in use as marked by the reference count. */
+    EM_ERR_IN_USE,
 } em_result;
 
 /**
@@ -302,6 +331,8 @@ static const char* em_error_string(em_result result) {
         return "Out of bounds";
     case EM_ERR_CAPACITY:
         return "Capacity exceeded";
+    case EM_ERR_IN_USE:
+        return "Type in use";
     default:
         return "Unknown error";
     }
