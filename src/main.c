@@ -30,6 +30,15 @@
  *       lot to the user getting right. Issue is with templates where the inside might be hidden
  * from the user. Maybe define a TAG macro?
  *
+ * @idea Use X-Macros for style tags. Allows a single file for tag generation.
+ * Example :
+ * enum em_tag {
+ * #define EM_TAG(x) EM_TAG_##x,
+ * #include "style_tags.def"
+ * #undef EM_TAG
+ *     EM_TAG_COUNT
+ * };
+ *
  *
  *
  * @optional Feature for allowing users to reserve types even with no references as a sort of
