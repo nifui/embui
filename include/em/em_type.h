@@ -20,8 +20,6 @@
 #ifndef EM_TYPE_H
 #define EM_TYPE_H
 
-#include <stdint.h>
-
 #ifndef EM_MEMCPY
 #include <string.h>
 
@@ -33,6 +31,25 @@
  */
 #define EM_MEMCPY memcpy
 #endif
+
+#ifndef EM_BOOL
+
+#ifdef EM_STDBOOL
+
+#include <stdbool.h>
+#define EM_BOOL bool
+#define EM_FALSE false
+#define EM_TRUE true
+#else
+
+#define EM_BOOL int
+#define EM_FALSE 0
+#define EM_TRUE 1
+
+#endif
+
+#endif
+typedef EM_BOOL em_bool;
 
 #ifndef EM_IDX_TYPE
 
@@ -56,7 +73,7 @@ typedef EM_IDX_TYPE em_idx;
  *
  * */
 typedef em_idx em_handle;
-
+typedef em_idx em_tag;
 /**
  * @brief Sentinel representing an invalid node index.
  */
@@ -303,6 +320,8 @@ typedef enum {
 
     /** The type is still in use as marked by the reference count. */
     EM_ERR_IN_USE,
+    /** The type that was supplied to a macro was wrong.*/
+    EM_ERR_WRONG_TYPE,
 } em_result;
 
 /**

@@ -59,7 +59,6 @@
 #pragma once
 #ifndef EM_EVENTS_H
 #define EM_EVENTS_H
-#include <stddef.h>
 #include "em_elements.h"
 #include "em_type.h"
 #include "em_tree.h"
@@ -156,12 +155,18 @@ typedef struct em_event {
 /**
  * @brief Callback invoked when an event is dispatched.
  *
+ * For global events just add to the root node which acts as a global event holder.
+ * This works fine for keypresses but not for mouses.
+ *
  * @param state User-defined state pointer supplied during registration.
  * @param event Event being delivered.
+ *
+ * @return EM_BOOL Was the event handled? If not the event will be propogated. If propogation of
+ *         events is not desired, just return EM_TRUE regardless of handled or not.
  */
-typedef void (*em_callback)(void* state, em_event event);
+typedef EM_BOOL (*em_callback)(void* state, em_event event);
 
-/**
+/** @brief A handler struct for an emitted em_event.
  */
 typedef struct em_handler {
     /** User-defined callback state. */

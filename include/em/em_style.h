@@ -5,6 +5,15 @@
 #include "em_elements.h"
 #include "em_type.h"
 
+enum {
+    EM_TAG_DEFAULT = 0,
+
+#define EM_TAG(x) EM_TAG_##x,
+#include "style_tags.def"
+#undef EM_TAG
+    EM_TAG_COUNT
+};
+
 /**
  * @brief Color representation
  */
@@ -54,7 +63,7 @@ typedef struct em_style {
     em_color  border_color;
     char      rounding;
     em_idx    next_frame;
-
+    uint8_t   ref_count;
 } em_style;
 
 typedef EM_VECTOR(em_style, em_styles);

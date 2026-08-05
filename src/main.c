@@ -33,12 +33,13 @@
  * @idea Use X-Macros for style tags. Allows a single file for tag generation.
  * Example :
  * enum em_tag {
+ *     EM_TAG_DEFUALT
  * #define EM_TAG(x) EM_TAG_##x,
  * #include "style_tags.def"
  * #undef EM_TAG
  *     EM_TAG_COUNT
  * };
- *
+ * Allow users to define an array of styles assocaited with a specific tag.
  *
  *
  * @optional Feature for allowing users to reserve types even with no references as a sort of
@@ -128,9 +129,8 @@ int main() {
     res = em_init_ui(&ctx, &ui, &desc, &root);
     EM_EXPECT(res);
 
-    res = em_add_prim(&ctx, &ui, EM_NODE_ROOT, DEFAULT_STYLE_IDX, RECT);
-    EM_EXPECT(res);
-
     printf("%s", em_error_string(res));
     return 0;
 }
+
+// By default if a style_idx isn't provided it should default to the default tag.

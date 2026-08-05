@@ -13,16 +13,3 @@
 // -- Semi (Avoid dyn alloc)
 #include <stdlib.h>
 
-//Example layout 
-WINDOW(
-    TOOLBAR(
-        BUTTON("Open"),
-        BUTTON("Save")
-    ),
-    CONTENT(
-        LABEL("Name"),
-        TEXTBOX(&name)
-    )
-)
-//To transllate this window would act as an init function or an indicator of usage of the root node for the subsequent elements within the macro block.
-

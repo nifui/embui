@@ -18,6 +18,7 @@ typedef enum em_primitive_type {
     TEXT,
     LINE,
     CIRCLE,
+    POINT,
 } em_primitive_type;
 
 #ifdef USE_INT16
@@ -70,6 +71,11 @@ typedef struct em_primitive {
     };
 } em_primitive;
 
+typedef struct em_shared_primitive {
+    em_primitive primitive;
+    uint8_t      ref_count;
+} em_shared_primitive;
+
 // Calculates the axis alligned bounding box of a primitive based off its type.
 // The bounding-box will be calculated to the smallest possible.
 // If the bbox are used to determine collision certain cases like a line or point should use
@@ -80,4 +86,10 @@ em_rect em_get_aabb(em_primitive* primitive);
 
 typedef EM_VECTOR(em_primitive, em_primitives);
 
+em_result
+em_add_primitive(em_ctx* ctx, em_primitives* primitives, em_primitive primitive, em_idx* prim_idx);
+
+em_result em_remove_primitive();
+
+em_result em_modify_primitive();
 #endif
