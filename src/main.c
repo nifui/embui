@@ -91,10 +91,6 @@
 
 #include <em/em.h>
 
-static em_node   nodes[64];
-static em_handle handles[64];
-static em_style  styles[16];
-
 void myfree(void* ptr, void* context) {
     free(ptr);
 }
@@ -114,22 +110,18 @@ int main() {
         .realloc = myrealloc,
         .context = NULL,
     };
-    em_ui_desc desc = {
-        .nodes           = nodes,
-        .node_capacity   = 64,
-        .styles          = styles,
-        .style_capacity  = 16,
-        .handles         = handles,
-        .handle_capacity = 64,
-    };
     em_result res;
     em_ctx    ctx = {.allocator = allocator};
     em_ui     ui  = {0};
     em_handle root;
-    res = em_init_ui(&ctx, &ui, &desc, &root);
+    res = em_init_ui(&ctx, &ui, &root, 1080, 1920);
     EM_EXPECT(res);
-
-    printf("%s", em_error_string(res));
+    em_button_state state = {
+        .pressed = EM_FALSE,
+    };
+    em_handle button;
+    res = em_add_button(&ctx, &ui, root, &button, &state);
+    EM_EXPECT(res);
     return 0;
 }
 

@@ -87,8 +87,8 @@ int em_ctx_init(em_ctx* ctx, em_allocator allocator);
  *
  * @return Return value description
  */
-em_result em_init_ui(em_ctx* ctx, em_ui* ui, em_ui_desc* desc, em_handle* root_handle);
 
+em_result em_init_ui(em_ctx* ctx, em_ui* ui, em_handle* root_handle, int width, int height);
 /**
  * Create a generic primitive element.
  */
@@ -104,8 +104,8 @@ em_result em_create_element(em_ctx*      ctx,
 em_result em_create_container(em_ctx* ctx, em_ui* ui, em_idx target_idx, em_handle* handle);
 
 /**
- * The operations below do not reuse/share anything and will create new resources. Avoid using if
- * memory usage is a concern.
+ * The operations below do not reuse/share anything and will create new resources. Avoid using
+ * if memory usage is a concern.
  */
 
 /**
@@ -140,13 +140,13 @@ em_add_button(em_ctx* ctx, em_ui* ui, em_idx target_idx, em_handle* handle, em_b
 // Made with two closed shapes.
 em_result em_add_slider(em_ctx* ctx, em_ui* ui, em_idx target_idx, em_handle* handle);
 
-// Could be made with just a line as the cursor, a rectangle as the container, and two text element
-// or one if ghost text isn't needed.
+// Could be made with just a line as the cursor, a rectangle as the container, and two text
+// element or one if ghost text isn't needed.
 em_result em_add_textbox(em_ctx* ctx, em_ui* ui, em_idx target_idx, em_handle* handle);
 
-// Idk how to handle this as this could just be considered a rendering primitive as all you need is
-// a rectangle to throw the picture in. If I were to tie it to state, it would be doing needless
-// work.
+// Idk how to handle this as this could just be considered a rendering primitive as all you need
+// is a rectangle to throw the picture in. If I were to tie it to state, it would be doing
+// needless work.
 em_result em_add_picture(em_ctx* ctx, em_ui* ui, em_idx target_idx, em_handle* handle);
 
 /**

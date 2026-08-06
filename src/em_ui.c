@@ -1,8 +1,11 @@
 #include <em/em_ui.h>
 #include <em/em_event.h>
 
+// These don't account/support null handles. Important to avoid forcing the user to store the handle
+// for every item.
 em_result em_add_descriptor(em_ctx* ctx, em_ui* ui, em_res_desc descriptor, em_handle* handle) {
     em_result res;
+
     res = em_reserve(ctx,
                      (void**)&ui->descriptors.data,
                      &ui->descriptors.capacity,
@@ -16,6 +19,36 @@ em_result em_add_descriptor(em_ctx* ctx, em_ui* ui, em_res_desc descriptor, em_h
     return EM_OK;
 }
 
+em_result em_init_ui(em_ctx* ctx, em_ui* ui, em_handle* root_handle, int width, int height) {
+    em_result res;
+    // Placeholder add a way to specify the size of the default allocations.
+    res = em_tree_init(ctx, &ui->tree);
+    EM_EXPECT(res);
+
+    em_idx prim_idx;
+    res = em_add_primitive(
+        ctx,
+        &ui->resources.primitives,
+        (em_primitive){.r    = (em_rect){.x = 0, .y = 0, .height = height, .width = width},
+                       .type = RECT},
+        &prim_idx);
+    EM_EXPECT(res);
+
+    em_res_desc descriptor = (em_res_desc){
+        .style_idx     = EM_TAG_DEFAULT,
+        .tree_idx      = EM_NODE_ROOT,
+        .callback_idx  = EM_IDX_NULL,
+        .primitive_idx = prim_idx,
+    };
+
+    res = em_add_descriptor(ctx, ui, descriptor, root_handle);
+    EM_EXPECT(res);
+
+    return EM_OK;
+}
+
+// These don't account/support null handles. Important to avoid forcing the user to store the handle
+// for every item.
 em_result em_create_element(em_ctx*      ctx,
                             em_ui*       ui,
                             em_idx       target_idx,
@@ -116,7 +149,7 @@ em_result em_add_button(em_ctx*          ctx,
     state->pressed     = EM_FALSE;
     em_handler handler = {.callback = em_button_cb, .state = (void*)state, .ref_count = 1};
     em_idx     handler_idx;
-    res = em_add_handler(ctx, &handler, &ui->resources.handlers, &handler_idx);
+    res = em_add_handler(ctx, handler, &ui->resources.handlers, &handler_idx);
     EM_EXPECT(res);
 
     res = em_create_container(ctx, ui, target_idx, handle);
@@ -124,15 +157,15 @@ em_result em_add_button(em_ctx*          ctx,
 
     em_res_desc* desc  = &ui->descriptors.data[*handle];
     desc->callback_idx = handler_idx;
-
+    em_handle rect_handle;
     res = em_add_rect(ctx,
                       ui,
                       desc->tree_idx,
-                      NULL,
+                      &rect_handle,
                       (em_rect){.x = 0, .y = 0, .height = 20, .width = 10});
     EM_EXPECT(res);
-
-    res = em_add_text(ctx, ui, desc->tree_idx, NULL, (em_text){.text = &button_text});
+    em_handle text_handle;
+    res = em_add_text(ctx, ui, desc->tree_idx, &text_handle, (em_text){.text = &button_text});
 
     EM_EXPECT(res);
 

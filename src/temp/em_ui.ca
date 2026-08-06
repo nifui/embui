@@ -93,3 +93,23 @@ em_result em_remove_prim(em_ctx* ctx, em_ui* ui, em_handle* handle) {
 // Returns back the corresponding index at which the style was placed.
 // Whe emitting commands, it figures out how to layout the elements based on it's siblings and
 // its parents. Cahildren's tend not to inherent parents unless explicitly specified.
+
+static em_node      nodes[64];
+static em_handler   handlers[64];
+static em_style     styles[16];
+static em_primitive primitives[64];
+static em_res_desc  descriptors[10];
+
+
+if (EM_TRUE) {
+   ui->tree.nodes.data                   = nodes;
+   ui->resources.handlers.inner.data     = handlers;
+   ui->resources.styles.data             = styles;
+   ui->resources.primitives.data         = primitives;
+   ui->descriptors.data                  = descriptors;
+   ui->tree.nodes.capacity               = 64;
+   ui->resources.handlers.inner.capacity = 64;
+   ui->resources.styles.capacity         = 16;
+   ui->resources.primitives.capacity     = 64;
+   ui->descriptors.capacity              = 10;
+}

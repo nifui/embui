@@ -108,26 +108,53 @@ enum {
 
     /** Shift key. */
     SHFT = 1 << 3,
+
+    /** Caps lock */
+    CAPS = 1 << 4,
+
 };
+
+/**
+ * @brief Describes the action of the mouse.
+ *
+ */
+typedef enum em_mouse_event_type {
+    EM_MOUSE_MOVE,
+    EM_MOUSE_PRESS,
+    EM_MOUSE_RELEASE,
+    EM_MOUSE_SCROLL,
+    EM_MOUSE_ENTER,
+    EM_MOUSE_LEAVE
+} em_mouse_event_type;
 
 /**
  * @brief Mouse event data.
  */
 typedef struct em_mouse_event {
-    /** Cursor position in UI coordinates. */
-    em_vec2 position;
+    em_mouse_event_type type;            // The type of mouse event.
+    em_vec2             cursor_position; // Absolute cursor position.
+    em_vec2             cursor_delta;    // Relative cursor deltas.
+    int                 scroll_positon;  // Absolute scroll wheel position.
+    int                 scroll_delta;    // Relative scroll wheel position.
+    int mouse_flags; // Combination of mouse button flags to indicate multiple held buttons.
+    int held_button; // The current button that the evet targets.
 
-    /** Combination of mouse button flags. */
-    int mouse_flags;
 } em_mouse_event;
+
+typedef enum em_keyboard_event_type {
+    EM_KEY_PRESS,
+    EM_KEY_RELEASE,
+    EM_KEY_HOLD,
+} em_keyboard_event_type;
 
 /**
  * @brief Keyboard event data.
  */
 typedef struct em_keyboard_event {
+    em_keyboard_event_type type;
     /** Platform-specific key code. */
-    int keycode;
-
+    int      keycode;
+    uint32_t unicode;
     /** Combination of modifier flags. */
     int modifier;
 } em_keyboard_event;
@@ -146,10 +173,12 @@ typedef struct em_event {
     union {
         /** Mouse event payload. */
         em_mouse_event mouse;
-
         /** Keyboard event payload. */
         em_keyboard_event keyboard;
     };
+
+    uint64_t timmestamp; // When the event was sent for debug purposes, and time specific UI aspects
+                         // like animations.
 } em_event;
 
 /**
@@ -181,9 +210,14 @@ typedef struct em_handler {
 
 /**
  * @brief Registry containing all registered callbacks.
+ *
+ * Should lack of memory for a free list call for an err or adapt by reordering?
  */
 /** Dynamic array of callback registrations. */
-typedef EM_VECTOR(em_handler, em_handlers);
+typedef struct em_handlers {
+    EM_VECTOR(em_handler, inner);
+    EM_VECTOR(em_idx, free_list);
+} em_handlers;
 
 /**
  * @brief Removes the callback associated with a widget.
@@ -194,7 +228,7 @@ typedef EM_VECTOR(em_handler, em_handlers);
  * @retval EM_OK Callback removed.
  * @retval EM_ERR_INVALID_HANDLE No callback exists for the handle.
  */
-em_result em_remove_handler(em_handlers* handlers, em_idx handle_idx);
+em_result em_remove_handler(em_ctx* ctx, em_handlers* handlers, em_idx handle_idx);
 
 /**
  * @brief Registers a callback which makes it available for a widget to link to.
@@ -207,7 +241,7 @@ em_result em_remove_handler(em_handlers* handlers, em_idx handle_idx);
  * @retval EM_OK Registration succeeded.
  * @retval EM_ERR_OUT_OF_MEMORY Registry growth failed.
  */
-em_result em_add_handler(em_ctx* ctx, em_handler* handler, em_handlers* handlers, em_idx* dst_idx);
+em_result em_add_handler(em_ctx* ctx, em_handler handler, em_handlers* handlers, em_idx* dst_idx);
 
 /**
  * @brief Dispatches an event through the widget hierarchy.

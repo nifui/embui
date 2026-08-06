@@ -184,11 +184,28 @@ typedef struct em_ctx {
     } while (0)
 
 /**
+ * @brief A macro for if an assertion that should be true fails.
+ *
+ * By default it is not implemented until EM_DEBUG is defined. This might be redundant considering
+ * the use of em_result everywhere.
+ */
+#ifdef EM_DEBUG
+#include <stdio.h>
+#define EM_ASSERT(cond)                                                                            \
+    do {                                                                                           \
+        if ((cond) != EM_TRUE) {                                                                   \
+            fprintf(stderr, "Failed assertion at %s, %s", __FILE__, __LINE__);                     \
+            abort();                                                                               \
+        }                                                                                          \
+    } while (0)
+#else
+#define EM_ASSERT(con)
+#endif
+/**
  * @brief Macro to wave a function as uncomplete.
  *
  * @param msg Message to be printed
  */
-#include <stdio.h>
 #include <stdlib.h>
 
 #define DO_PRAGMA(x) _Pragma(#x)
@@ -242,6 +259,13 @@ typedef struct em_free_list {
  *
  * @return Return value description
  */
+
+#define EM_VECTOR_INIT(vec)                                                                        \
+    do {                                                                                           \
+        (vec).data     = NULL;                                                                     \
+        (vec).size     = 0;                                                                        \
+        (vec).capacity = 0;                                                                        \
+    } while (0)
 
 /**
  * @brief Append an element to a vector.
